@@ -34,6 +34,27 @@ For the full acceptance-criteria-by-criteria evidence table, exact test commands
 
 Per Phase 0's own forbidden scope and this task's explicit `DO NOT` list: no `ResearchProject`/RDT/Dataset/AnalysisRun entity, no auth UI, no queue/event-bus infrastructure, no external provider integration, and no statistical/analysis feature was added. Rate limiting on `/api/ready` was deliberately not added — it is not part of Phase 0's named security baseline, and there is no rate-limiting infrastructure in this codebase to build on yet; noted as a residual risk (an unauthenticated caller could poll `/api/ready` at a high rate, adding load to the database) for a later phase to address, not silently accepted as solved.
 
+## Migration rehearsal evidence
+
+Rehearsed against an isolated local Postgres via `supabase start` (Docker), never against the production project referenced by `.env.local`. Commands run from a clean local stack:
+
+```
+$ supabase db reset
+Resetting local database...
+Recreating database...
+Initialising schema...
+Seeding globals from roles.sql...
+Skipping migration README.md... (file name must match pattern "<timestamp>_name.sql")
+Applying migration 20260827101317_baseline_schema.sql...
+Applying migration 20260827101319_phase0_empty_baseline.sql...
+Seeding data from supabase/seed.sql...
+Finished supabase db reset on branch main.
+```
+
+Verified after the first reset: all 9 baseline tables present, RLS enabled on the expected tables, `supabase_migrations.schema_migrations` recorded exactly the 2 migrations, `supabase/seed.sql` loaded (4 categories / 7 tags / 3 articles). `supabase db reset` was then run a **second time**: identical output, identical table list, identical migration-history row count (2, not 4), identical seed counts (4/7/3, not 8/14/6) — the runner did not duplicate or corrupt state on repeated invocation. `README.md` inside `supabase/migrations/` was correctly skipped by the runner (naming-convention enforcement confirmed, not just documented). The stack was stopped (`supabase stop`) afterward; no local runtime artifact (`.branches`, `.temp`) leaked into `git status` — both are covered by `supabase/.gitignore`.
+
+"Unavailable database" and "invalid/missing configuration" behavior were verified at the unit/contract level (mocked `checkDatabaseConnection`/`loadServerConfig`, see `src/lib/platform/db.test.ts` and `src/app/api/ready/route.test.ts`), not by deliberately breaking the real hosted database — Phase 0 test evidence must not touch production, and there was no second, disposable hosted project to safely break instead.
+
 ## Related documents
 
 - [P0 Backend Implementation Sequence](../implementation/P0%20BACKEND%20IMPLEMENTATION%20SEQUENCE.md), [P0 Implementation Gates](../implementation/P0%20IMPLEMENTATION%20GATES.md) (Gate A), [P0 Definition of Done](../implementation/P0%20DEFINITION%20OF%20DONE.md).
