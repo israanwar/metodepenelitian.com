@@ -1,0 +1,147 @@
+<title>Functional Requirements Document (FRD) v1.0</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  :root {
+    --bg: #FFFFFF; --bg-alt: #F8FAFC; --ink: #0F172A; --text-2: #475569; --text-3: #64748B;
+    --border: #E2E8F0; --border-strong: #CBD5E1; --accent: #1F47F5; --accent-2: #1836E1;
+    --accent-soft: #D9E6FF;
+    --serif: "Source Serif 4", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1728; --bg-alt: #16233F; --ink: #F1F5F9; --text-2: #9DB2CE; --text-3: #6C8AB3;
+      --border: #2C4265; --border-strong: #39547D; --accent: #598DFF; --accent-2: #8EB6FF; --accent-soft: #1A2C5C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1728; --bg-alt: #16233F; --ink: #F1F5F9; --text-2: #9DB2CE; --text-3: #6C8AB3;
+    --border: #2C4265; --border-strong: #39547D; --accent: #598DFF; --accent-2: #8EB6FF; --accent-soft: #1A2C5C;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 800px; margin: 0 auto; padding: clamp(28px,6vw,72px) clamp(20px,4vw,32px) 100px; }
+  .eyebrow { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .2em; color: var(--accent); margin: 0 0 14px; }
+  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(26px,4vw,36px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  .subtitle { color: var(--text-2); font-size: 14.5px; margin: 0 0 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 700; font-size: 21px; color: var(--ink); margin: 40px 0 6px; padding-top: 20px; border-top: 1px solid var(--border); text-wrap: balance; }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  h3 { font-family: var(--sans); font-weight: 600; font-size: 15.5px; color: var(--accent-2); margin: 22px 0 4px; text-transform: uppercase; letter-spacing: .04em; }
+  h4 { font-family: var(--sans); font-weight: 600; font-size: 14px; color: var(--text-2); margin: 16px 0 4px; }
+  p { font-size: 14.5px; color: var(--text-2); margin: 0 0 12px; max-width: 68ch; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { font-size: 14.5px; color: var(--text-2); margin: 3px 0; }
+  li::marker { color: var(--text-3); }
+  blockquote { margin: 16px 0; padding: 12px 18px; border-left: 3px solid var(--accent); background: var(--bg-alt); color: var(--ink); font-style: italic; border-radius: 0 6px 6px 0; }
+  .table-scroll { overflow-x: auto; margin: 8px 0 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+  thead th { background: var(--bg-alt); font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); font-weight: 500; }
+  tbody td { color: var(--text-2); }
+  tbody tr:first-child td { font-weight: 600; color: var(--ink); }
+  code { font-family: var(--mono); font-size: .9em; background: var(--bg-alt); padding: 1px 5px; border-radius: 3px; }
+  .conv-note { font-family: var(--mono); font-size: 10.5px; color: var(--text-3); margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+</style>
+<div class="wrap">
+  <p class="eyebrow">MetodePenelitian.com — Dokumen Produk</p>
+  <h1>MetodePenelitian.com<br>Functional Requirements Document (FRD)<br>Version 1.0</h1>
+<h3>1. Document Purpose</h3>
+<p>This document specifies detailed functional requirements for the MetodePenelitian.com platform. Each requirement is traceable to the Business Requirements Document (BRD) and Product Requirements Document (PRD).</p>
+<h3>2. Requirement Template</h3>
+<ul>
+  <li>Requirement ID</li>
+  <li>Module</li>
+  <li>Business Objective</li>
+  <li>Description</li>
+  <li>Actors</li>
+  <li>Preconditions</li>
+  <li>Trigger</li>
+  <li>Main Flow</li>
+  <li>Alternative Flow</li>
+  <li>Exception Flow</li>
+  <li>Inputs</li>
+  <li>Validation Rules</li>
+  <li>Outputs</li>
+  <li>Business Rules</li>
+  <li>Related Database Entities</li>
+  <li>Related APIs</li>
+  <li>Related UI Screens</li>
+  <li>Acceptance Criteria</li>
+  <li>Priority</li>
+  <li>Dependencies</li>
+  <li>Traceability</li>
+</ul>
+<h3>3. Detailed Functional Requirements</h3>
+<h4>FR-001 - Global Search</h4>
+<div class="table-scroll"><table>
+<thead><tr><th>Business Objective</th><th>User searches research content</th></tr></thead>
+<tbody>
+<tr><td>Actors</td><td>Guest, Member</td></tr>
+<tr><td>Priority</td><td>Must Have</td></tr>
+<tr><td>Preconditions</td><td>Module available and service online.</td></tr>
+<tr><td>Trigger</td><td>User initiates action.</td></tr>
+<tr><td>Acceptance Criteria</td><td>Feature completes successfully without validation errors.</td></tr>
+</tbody>
+</table></div>
+<blockquote>Main Flow</blockquote>
+<ol>
+  <li>Guest/Member enters keyword in search bar.</li>
+  <li>System validates query length (minimum 2 characters).</li>
+  <li>System searches articles, courses, repository, AI history, templates.</li>
+  <li>Results sortable by relevance, newest, popularity.</li>
+  <li>Supports filters: category, topic, language, content type.</li>
+  <li>Response target &lt;2 seconds for cached queries.</li>
+</ol>
+<p>Related Database Entities: Search index, Articles, Categories</p>
+<p>Related APIs: REST endpoint (to be defined in API Documentation).</p>
+<p>Traceability: BRD -&gt; PRD -&gt; FRD -&gt; API -&gt; ERD -&gt; Test Cases</p>
+<h4>FR-002 - Knowledge Base</h4>
+<div class="table-scroll"><table>
+<thead><tr><th>Business Objective</th><th>Read academic articles</th></tr></thead>
+<tbody>
+<tr><td>Actors</td><td>Guest, Member</td></tr>
+<tr><td>Priority</td><td>Must Have</td></tr>
+<tr><td>Preconditions</td><td>Module available and service online.</td></tr>
+<tr><td>Trigger</td><td>User initiates action.</td></tr>
+<tr><td>Acceptance Criteria</td><td>Feature completes successfully without validation errors.</td></tr>
+</tbody>
+</table></div>
+<blockquote>Main Flow</blockquote>
+<ol>
+  <li>Display structured article.</li>
+  <li>Breadcrumb navigation.</li>
+  <li>Related articles.</li>
+  <li>Download references.</li>
+  <li>Estimated reading time.</li>
+  <li>Feedback (helpful/not helpful).</li>
+</ol>
+<p>Related Database Entities: Articles, Authors, Tags</p>
+<p>Related APIs: REST endpoint (to be defined in API Documentation).</p>
+<p>Traceability: BRD -&gt; PRD -&gt; FRD -&gt; API -&gt; ERD -&gt; Test Cases</p>
+<h4>FR-003 - AI Research Title Generator</h4>
+<div class="table-scroll"><table>
+<thead><tr><th>Business Objective</th><th>Generate title ideas</th></tr></thead>
+<tbody>
+<tr><td>Actors</td><td>Guest, Member</td></tr>
+<tr><td>Priority</td><td>Must Have</td></tr>
+<tr><td>Preconditions</td><td>Module available and service online.</td></tr>
+<tr><td>Trigger</td><td>User initiates action.</td></tr>
+<tr><td>Acceptance Criteria</td><td>Feature completes successfully without validation errors.</td></tr>
+</tbody>
+</table></div>
+<blockquote>Main Flow</blockquote>
+<ol>
+  <li>Member submits research topic.</li>
+  <li>System validates prompt.</li>
+  <li>AI generates 10 title suggestions.</li>
+  <li>User may regenerate or save results.</li>
+  <li>History stored.</li>
+</ol>
+<p>Related Database Entities: AI Requests, Users, History</p>
+<p>Related APIs: REST endpoint (to be defined in API Documentation).</p>
+<p>Traceability: BRD -&gt; PRD -&gt; FRD -&gt; API -&gt; ERD -&gt; Test Cases</p>
+  <p class="conv-note">Dikonversi otomatis dari MetodePenelitian.com - Functional Requirements Document (FRD) v1.0.docx — struktur asli (heading, list, tabel) dipertahankan.</p>
+</div>

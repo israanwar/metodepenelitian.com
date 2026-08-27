@@ -53,6 +53,9 @@ export function KnowledgeBaseBrowser({
       {/* Search + filters */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="relative flex-1">
+          <label htmlFor="knowledge-base-search" className="sr-only">
+            {dict.kb.searchLabel}
+          </label>
           <svg
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
             width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -61,6 +64,7 @@ export function KnowledgeBaseBrowser({
             <path d="m21 21-4.3-4.3" />
           </svg>
           <input
+            id="knowledge-base-search"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}

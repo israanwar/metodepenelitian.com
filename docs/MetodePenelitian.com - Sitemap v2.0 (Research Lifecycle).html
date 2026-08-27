@@ -1,0 +1,357 @@
+<title>MetodePenelitian Sitemap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    /* Diambil dari getComputedStyle live localhost:3000, bukan ditebak
+       dari tailwind.config.ts. ink-900/950 dan gold-* tidak dipakai di
+       UI manapun di situs asli — tidak dipakai di sini juga. */
+    --bg: #FFFFFF; --bg-alt: #F8FAFC; --ink: #0F172A; --text-2: #475569; --text-3: #64748B;
+    --border: #E2E8F0; --border-strong: #CBD5E1; --accent: #1F47F5; --accent-2: #1836E1;
+    --accent-soft: #D9E6FF;
+    --live: #1E7A4C; --live-bg: #E7F3EC;
+    --mvp: #B45309; --mvp-bg: #FEF3E2;
+    --phase2: #64748B; --phase2-bg: #F1F5F9;
+    --gap: #B84545; --gap-bg: #F8E9E9;
+    --serif: "Source Serif 4", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1728; --bg-alt: #16233F; --ink: #F1F5F9; --text-2: #9DB2CE; --text-3: #6C8AB3;
+      --border: #2C4265; --border-strong: #39547D; --accent: #598DFF; --accent-2: #8EB6FF;
+      --accent-soft: #1A2C5C;
+      --live: #4ADE9A; --live-bg: #0F2A1D;
+      --mvp: #E8A857; --mvp-bg: #2A2013;
+      --phase2: #9AA5B8; --phase2-bg: #1A2233;
+      --gap: #E28080; --gap-bg: #2A1414;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1728; --bg-alt: #16233F; --ink: #F1F5F9; --text-2: #9DB2CE; --text-3: #6C8AB3;
+    --border: #2C4265; --border-strong: #39547D; --accent: #598DFF; --accent-2: #8EB6FF;
+    --accent-soft: #1A2C5C;
+    --live: #4ADE9A; --live-bg: #0F2A1D;
+    --mvp: #E8A857; --mvp-bg: #2A2013;
+    --phase2: #9AA5B8; --phase2-bg: #1A2233;
+    --gap: #E28080; --gap-bg: #2A1414;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--accent); color: #fff; }
+  a { color: var(--accent); }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .92em; background: var(--bg-alt); padding: 1px 5px; border-radius: 3px; }
+
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 clamp(20px,4vw,56px) 120px; }
+
+  header.doc-head { padding: clamp(44px,7vw,76px) 0 40px; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .22em; color: var(--accent); margin: 0 0 16px; }
+  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(30px,4.5vw,46px); line-height: 1.1; margin: 0 0 18px; text-wrap: balance; max-width: 18ch; }
+  p.lede { font-size: 16.5px; color: var(--text-2); max-width: 66ch; margin: 0 0 26px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 11.5px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 4px; }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .pill.live { background: var(--live-bg); color: var(--live); }
+  .pill.live .dot { background: var(--live); }
+  .pill.placeholder { background: var(--phase2-bg); color: var(--text-2); }
+  .pill.placeholder .dot { background: var(--border-strong); }
+  .pill.mvp { background: var(--mvp-bg); color: var(--mvp); }
+  .pill.mvp .dot { background: var(--mvp); }
+  .pill.phase2 { background: var(--phase2-bg); color: var(--phase2); }
+  .pill.phase2 .dot { background: var(--phase2); }
+  .pill.gap { background: var(--gap-bg); color: var(--gap); }
+  .pill.gap .dot { background: var(--gap); }
+
+  section.decisions { padding: 44px 0; border-bottom: 1px solid var(--border); }
+  h2.sec-title { font-family: var(--serif); font-weight: 700; font-size: clamp(22px,3vw,27px); margin: 0 0 10px; }
+  p.sec-lede { color: var(--text-2); max-width: 68ch; margin: 0 0 26px; font-size: 15px; }
+
+  .decision { display: flex; gap: 16px; border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; margin-bottom: 12px; background: var(--bg-alt); }
+  .decision:last-child { margin-bottom: 0; }
+  .decision .d-num { font-family: var(--mono); color: var(--accent); font-size: 13px; padding-top: 2px; }
+  .decision p { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p:last-child { margin-bottom: 0; }
+  .decision .d-default { font-size: 13px; color: var(--text-2); }
+  .decision .d-default strong { color: var(--ink); font-weight: 600; }
+
+  section.module { padding: 48px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 20px; }
+  section.module:last-of-type { border-bottom: none; }
+  .module-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; }
+  .module-num { font-family: var(--mono); font-size: 14px; color: var(--border-strong); }
+  h2.module-title { font-family: var(--serif); font-weight: 700; font-size: clamp(21px,2.8vw,25px); margin: 0; }
+  .module-base { font-family: var(--mono); font-size: 12.5px; color: var(--text-3); margin: 4px 0 20px; }
+  .module-base code { background: none; padding: 0; color: var(--accent); }
+
+  table.routes { width: 100%; border-collapse: collapse; font-size: 13.8px; }
+  table.routes th {
+    text-align: left; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--text-3); font-weight: 500; padding: 0 14px 9px 0; border-bottom: 1px solid var(--border-strong);
+  }
+  table.routes td { padding: 11px 14px 11px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.routes tr:last-child td { border-bottom: none; }
+  table.routes td.route { font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  table.routes td.note { color: var(--text-2); font-size: 13px; }
+  .table-scroll { overflow-x: auto; }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px; white-space: nowrap; padding: 3px 8px; border-radius: 4px; }
+  .status-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  footer.doc-foot { padding: 40px 0 0; font-family: var(--mono); font-size: 11.5px; color: var(--text-3); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+</style>
+
+<div class="wrap">
+  <header class="doc-head">
+    <p class="eyebrow">Sitemap — Draft v1, diturunkan dari Master Product Architecture</p>
+    <h1>URL-level sitemap MetodePenelitian.com</h1>
+    <p class="lede">
+      Setiap route di bawah ditandai berdasarkan status nyata di kode saat ini (dicek langsung, bukan diasumsikan) —
+      bukan cuma daftar keinginan. Empat pertanyaan terbuka dari dokumen arsitektur sudah diberi jawaban default
+      supaya sitemap ini utuh; tandai mana yang mau diubah.
+    </p>
+    <div class="legend">
+      <span class="pill live"><span class="dot"></span>Live — halaman nyata</span>
+      <span class="pill placeholder"><span class="dot"></span>Route ada, masih ComingSoon</span>
+      <span class="pill mvp"><span class="dot"></span>Baru — target MVP</span>
+      <span class="pill phase2"><span class="dot"></span>Baru — Phase 2</span>
+      <span class="pill gap"><span class="dot"></span>Belum ada rumah di arsitektur</span>
+    </div>
+  </header>
+
+  <section class="decisions">
+    <h2 class="sec-title">Keputusan Default</h2>
+    <p class="sec-lede">Empat pertanyaan terbuka dari dokumen arsitektur, dijawab supaya sitemap bisa lengkap. Ini asumsi kerja, bukan keputusan final.</p>
+
+    <div class="decision">
+      <span class="d-num">01</span>
+      <div>
+        <p>Urutan submenu di bawah nav <strong>Research</strong>.</p>
+        <p class="d-default"><strong>Default:</strong> ikut urutan lifecycle — Plan → Execute (teaser publik) → Cite &amp; Evidence. Route dasar tetap <code>/research-hub</code> (existing, tidak diganti nama, sesuai prinsip tidak mengubah route tanpa kebutuhan).</p>
+      </div>
+    </div>
+    <div class="decision">
+      <span class="d-num">02</span>
+      <div>
+        <p>Integrations berdiri sendiri atau tersebar?</p>
+        <p class="d-default"><strong>Default:</strong> tersebar di titik butuh (Zotero di Cite &amp; Evidence, SmartPLS di halaman metode SEM, dst.) + satu halaman indeks ringkas di <code>/integrations</code>.</p>
+      </div>
+    </div>
+    <div class="decision">
+      <span class="d-num">03</span>
+      <div>
+        <p>Research Knowledge Graph — MVP atau Phase 2?</p>
+        <p class="d-default"><strong>Default:</strong> Phase 2. Berat di data model (10 tipe entitas relasional), dan 11 modul konten dasar perlu berdiri dulu supaya ada data untuk digraf-kan.</p>
+      </div>
+    </div>
+    <div class="decision">
+      <span class="d-num">04</span>
+      <div>
+        <p>Analysis Advisor — decision-tree/rule engine.</p>
+        <p class="d-default"><strong>Default:</strong> tetap MVP (ini kekuatan inti Analyze), tapi butuh sesi scoping teknis terpisah sebelum dikerjakan — beda kelas dari kalkulator statis yang sudah ada.</p>
+      </div>
+    </div>
+    <div class="decision">
+      <span class="d-num">05</span>
+      <div>
+        <p><strong>Temuan baru saat menurunkan sitemap:</strong> "Repository" (proposal/skripsi/tesis/disertasi/dataset/template — dari sitemap lama) tidak punya rumah eksplisit di 11 modul arsitektur baru. Docs sitemap type-nya sudah pindah konsep ke <code>Write</code> (dokumen) dan <code>Execute</code> (dataset), tapi "bank karya bisa-diunduh" sebagai satu tempat jelajah belum diputuskan masuk mana.</p>
+        <p class="d-default"><strong>Default:</strong> taruh sementara sebagai bagian <code>Discover</code> (dijelajah seperti Papers), ditandai <span class="status-pill gap"><span class="dot"></span>gap</span> di bawah — perlu keputusan eksplisit, bukan diam-diam diputuskan sendiri.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 01 DISCOVER ============ -->
+  <section class="module" id="discover">
+    <div class="module-head"><span class="module-num">01</span><h2 class="module-title">Discover</h2></div>
+    <p class="module-base">base: <code>/discover</code> — namespace baru</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/discover</td><td>Hub + Trending</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">"Trending" minggu ini beri alasan kembali</td></tr>
+          <tr><td class="route">/discover/search</td><td>Research Search</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">natural language + Boolean + filter (pola Consensus)</td></tr>
+          <tr><td class="route">/discover/papers/[slug]</td><td>Halaman paper</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">metadata sitasi, related, save</td></tr>
+          <tr><td class="route">/discover/authors/[slug]</td><td>Halaman penulis</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">butuh entity graph penulis</td></tr>
+          <tr><td class="route">/discover/journals/[slug]</td><td>Halaman jurnal</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">metrik rank, cakupan</td></tr>
+          <tr><td class="route">/discover/topics/[slug]</td><td>Hub topik</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">tautan ke Learn + Analyze terkait</td></tr>
+          <tr><td class="route">/discover/trends</td><td>Research Trends</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">butuh data agregat, tak kritis di MVP</td></tr>
+          <tr><td class="route">/discover/graph</td><td>Research Graph</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">lihat §Research Knowledge Graph</td></tr>
+          <tr><td class="route">/discover/repository</td><td>Bank karya (proposal/skripsi/dataset)</td><td><span class="status-pill gap"><span class="dot"></span>Gap</span></td><td class="note">lihat Keputusan #05 — belum final</td></tr>
+          <tr><td class="route">— (di dalam login)</td><td>Saved Searches</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">pindah ke My Research, bukan route publik</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 02 LEARN ============ -->
+  <section class="module" id="learn">
+    <div class="module-head"><span class="module-num">02</span><h2 class="module-title">Learn</h2></div>
+    <p class="module-base">base: <code>/learn</code> — <strong style="color:var(--live);font-family:var(--mono);font-size:12px">sudah ada</strong>, saat ini ComingSoon</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/learn</td><td>Hub</td><td><span class="status-pill placeholder"><span class="dot"></span>Placeholder</span></td><td class="note">route sudah ada, isi belum</td></tr>
+          <tr><td class="route">/learn/method/[slug]</td><td><strong>Halaman metode</strong> (flagship)</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">template wajib: definisi → related methods → software → calculator → papers → AI. Ini pembeda utama modul ini.</td></tr>
+          <tr><td class="route">/learn/fundamentals</td><td>Research Fundamentals</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">konten sudah pernah ada sebagian di Knowledge Base lama</td></tr>
+          <tr><td class="route">/learn/quantitative</td><td>Quantitative Research</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">indeks ke /learn/method/*</td></tr>
+          <tr><td class="route">/learn/qualitative</td><td>Qualitative Research</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">indeks ke /learn/method/*</td></tr>
+          <tr><td class="route">/learn/mixed-methods</td><td>Mixed Methods</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/learn/sampling</td><td>Sampling</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">tertaut ke Sample Size Calculator (Analyze)</td></tr>
+          <tr><td class="route">/learn/statistics</td><td>Statistics</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/learn/ethics</td><td>Research Ethics</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/learn/academic-writing</td><td>Academic Writing</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">tertaut ke §Write</td></tr>
+          <tr><td class="route">/learn/dictionary</td><td>Research Dictionary</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/learn/methods-map</td><td>Research Methods Map</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">versi visual dari Research Knowledge Graph, bagian Learn</td></tr>
+          <tr><td class="route">/learn/cases</td><td>Cases</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 03/04/07 RESEARCH ============ -->
+  <section class="module" id="research">
+    <div class="module-head"><span class="module-num">03·04·07</span><h2 class="module-title">Research <span style="font-family:var(--mono);font-size:13px;color:var(--text-3);font-weight:400">— Plan + Execute + Cite &amp; Evidence</span></h2></div>
+    <p class="module-base">base: <code>/research-hub</code> — <strong style="color:var(--live);font-family:var(--mono);font-size:12px">sudah ada</strong>, saat ini ComingSoon, nama route dipertahankan</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/research-hub</td><td>Hub</td><td><span class="status-pill placeholder"><span class="dot"></span>Placeholder</span></td><td class="note">route sudah ada, isi belum</td></tr>
+          <tr><td class="route">/research-hub/planner</td><td>Research Planner (Plan)</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">interaktif, pola SAGE Project Planner — publik terbatas, penuh butuh login</td></tr>
+          <tr><td class="route">/research-hub/workspace</td><td>Penjelasan Execute</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">halaman marketing/penjelas — workspace sungguhan ada di My Research</td></tr>
+          <tr><td class="route">/research-hub/references</td><td>Reference Library, DOI Lookup</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">Citation Generator tetap di <code>/tools/citation</code> (sudah ada), tidak diduplikasi</td></tr>
+          <tr><td class="route">/research-hub/design</td><td>Research Design</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 05 ANALYZE ============ -->
+  <section class="module" id="analyze">
+    <div class="module-head"><span class="module-num">05</span><h2 class="module-title">Analyze</h2></div>
+    <p class="module-base">base: <code>/tools</code> — <strong style="color:var(--live);font-family:var(--mono);font-size:12px">sudah ada &amp; berfungsi</strong></p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/tools</td><td>Hub kalkulator</td><td><span class="status-pill live"><span class="dot"></span>Live</span></td><td class="note">sudah nyata &amp; jalan</td></tr>
+          <tr><td class="route">/tools/sample-size</td><td>Sample Size Calculator</td><td><span class="status-pill live"><span class="dot"></span>Live</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/slovin</td><td>Slovin Calculator</td><td><span class="status-pill live"><span class="dot"></span>Live</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/cronbach</td><td>Cronbach's Alpha</td><td><span class="status-pill live"><span class="dot"></span>Live</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/citation</td><td>Citation Generator</td><td><span class="status-pill live"><span class="dot"></span>Live</span></td><td class="note">secara konsep §Cite &amp; Evidence, tapi sudah mapan di sini</td></tr>
+          <tr><td class="route">/tools/validity</td><td>Validity Test</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">dari BRD lama, belum dibangun</td></tr>
+          <tr><td class="route">/tools/reliability</td><td>Reliability Test</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/vif</td><td>VIF Calculator</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/sobel</td><td>Sobel Test (Mediation)</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/effect-size</td><td>Effect Size Calculator</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/tools/advisor</td><td><strong>Analysis Advisor</strong> (flagship)</td><td><span class="status-pill mvp"><span class="dot"></span>MVP*</span></td><td class="note">*butuh scoping teknis rule-engine terpisah — lihat Keputusan #04</td></tr>
+          <tr><td class="route">/tools/software/[slug]</td><td>Software Guides</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">SPSS, SmartPLS, AMOS, R, Python, Stata, NVivo, ATLAS.ti, MAXQDA</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 06 WRITE ============ -->
+  <section class="module" id="write">
+    <div class="module-head"><span class="module-num">06</span><h2 class="module-title">Write</h2></div>
+    <p class="module-base">base: <code>/write</code> — namespace baru</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/write</td><td>Hub</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/write/proposal</td><td>Proposal</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">struktur beda per jenjang S1/S2/S3</td></tr>
+          <tr><td class="route">/write/thesis</td><td>Thesis</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/write/dissertation</td><td>Dissertation</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/write/journal-article</td><td>Journal Article</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">audiens S3/dosen, prioritas lebih rendah</td></tr>
+          <tr><td class="route">/write/templates</td><td>Templates</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note"></td></tr>
+          <tr><td class="route">/write/language-tools</td><td>Paraphrasing, Grammar, Academic Language</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">butuh AI generatif, bukan cuma referensi statis</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 08 METODE AI ============ -->
+  <section class="module" id="ai">
+    <div class="module-head"><span class="module-num">08</span><h2 class="module-title">Metode AI</h2></div>
+    <p class="module-base">base: <code>/ai</code> — <strong style="color:var(--live);font-family:var(--mono);font-size:12px">sudah ada</strong>, saat ini ComingSoon</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/ai</td><td>Copilot interface</td><td><span class="status-pill placeholder"><span class="dot"></span>Placeholder</span></td><td class="note">route sudah ada; backend AI di luar cakupan dokumen ini (lihat STOP di task navigasi sebelumnya)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 09 ACADEMY ============ -->
+  <section class="module" id="academy">
+    <div class="module-head"><span class="module-num">09</span><h2 class="module-title">Academy</h2></div>
+    <p class="module-base">base: <code>/academy</code> — namespace baru (nav item ada, route belum)</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/academy</td><td>Hub</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">butuh model konten kursus + pembayaran, di luar MVP konten referensi</td></tr>
+          <tr><td class="route">/academy/courses/[slug]</td><td>Kursus</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 10 INTEGRATIONS ============ -->
+  <section class="module" id="integrations">
+    <div class="module-head"><span class="module-num">10</span><h2 class="module-title">Integrations</h2></div>
+    <p class="module-base">base: <code>/integrations</code> — namespace baru, indeks ringkas saja (lihat Keputusan #02)</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/integrations</td><td>Indeks integrasi</td><td><span class="status-pill mvp"><span class="dot"></span>MVP</span></td><td class="note">daftar + status tiap integrasi; integrasi sungguhan tersebar per modul</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 11 MY RESEARCH ============ -->
+  <section class="module" id="my-research">
+    <div class="module-head"><span class="module-num">11</span><h2 class="module-title">My Research</h2></div>
+    <p class="module-base">base: <code>/dashboard</code> — namespace baru, <strong style="color:var(--gap);font-family:var(--mono);font-size:12px">terkunci sampai autentikasi ada</strong></p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Halaman</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/dashboard</td><td>Overview proyek</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">blocker: belum ada mekanisme auth di kode</td></tr>
+          <tr><td class="route">/dashboard/projects/[id]</td><td>Satu proyek (Plan+Execute+Analyze+Write+Cite)</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note">inti Research Operating System</td></tr>
+          <tr><td class="route">/dashboard/library</td><td>Library</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note"></td></tr>
+          <tr><td class="route">/dashboard/ai</td><td>AI Conversations</td><td><span class="status-pill phase2"><span class="dot"></span>Phase 2</span></td><td class="note"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ UTILITY ROUTES SUDAH ADA ============ -->
+  <section class="module" id="existing">
+    <div class="module-head"><span class="module-num">—</span><h2 class="module-title">Route existing di luar 11 modul</h2></div>
+    <p class="module-base">tidak dihapus, tidak diubah — tetap seperti sekarang</p>
+    <div class="table-scroll">
+      <table class="routes">
+        <thead><tr><th>Route</th><th>Status</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/knowledge-base</td><td><span class="status-pill live"><span class="dot"></span>Live</span></td><td class="note">konten sudah ada — kandidat kuat dilebur ke /learn suatu saat, bukan sekarang</td></tr>
+          <tr><td class="route">/about · /contact · /pricing · /faq · /privacy · /terms</td><td><span class="status-pill placeholder"><span class="dot"></span>Placeholder</span></td><td class="note">halaman korporat standar, di luar cakupan lifecycle</td></tr>
+          <tr><td class="route">/login · /register</td><td><span class="status-pill placeholder"><span class="dot"></span>Placeholder</span></td><td class="note">blocker sama dengan My Research: butuh auth nyata</td></tr>
+          <tr><td class="route">/blog · /community</td><td><span class="status-pill placeholder"><span class="dot"></span>Placeholder</span></td><td class="note">tidak dipetakan eksplisit ke 11 modul — Blog kandidat masuk Discover, Community di luar cakupan dokumen ini</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="doc-foot">
+    <span>Sitemap v1 — diturunkan dari Master Product Architecture</span>
+    <span>Langkah berikut: PRD per modul, mulai dari yang MVP</span>
+  </footer>
+</div>

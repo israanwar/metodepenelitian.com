@@ -1,0 +1,124 @@
+<title>UX Research Document v1.0</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  :root {
+    --bg: #FFFFFF; --bg-alt: #F8FAFC; --ink: #0F172A; --text-2: #475569; --text-3: #64748B;
+    --border: #E2E8F0; --border-strong: #CBD5E1; --accent: #1F47F5; --accent-2: #1836E1;
+    --accent-soft: #D9E6FF;
+    --serif: "Source Serif 4", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1728; --bg-alt: #16233F; --ink: #F1F5F9; --text-2: #9DB2CE; --text-3: #6C8AB3;
+      --border: #2C4265; --border-strong: #39547D; --accent: #598DFF; --accent-2: #8EB6FF; --accent-soft: #1A2C5C;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1728; --bg-alt: #16233F; --ink: #F1F5F9; --text-2: #9DB2CE; --text-3: #6C8AB3;
+    --border: #2C4265; --border-strong: #39547D; --accent: #598DFF; --accent-2: #8EB6FF; --accent-soft: #1A2C5C;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 800px; margin: 0 auto; padding: clamp(28px,6vw,72px) clamp(20px,4vw,32px) 100px; }
+  .eyebrow { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .2em; color: var(--accent); margin: 0 0 14px; }
+  h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(26px,4vw,36px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+  .subtitle { color: var(--text-2); font-size: 14.5px; margin: 0 0 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 700; font-size: 21px; color: var(--ink); margin: 40px 0 6px; padding-top: 20px; border-top: 1px solid var(--border); text-wrap: balance; }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  h3 { font-family: var(--sans); font-weight: 600; font-size: 15.5px; color: var(--accent-2); margin: 22px 0 4px; text-transform: uppercase; letter-spacing: .04em; }
+  h4 { font-family: var(--sans); font-weight: 600; font-size: 14px; color: var(--text-2); margin: 16px 0 4px; }
+  p { font-size: 14.5px; color: var(--text-2); margin: 0 0 12px; max-width: 68ch; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { font-size: 14.5px; color: var(--text-2); margin: 3px 0; }
+  li::marker { color: var(--text-3); }
+  blockquote { margin: 16px 0; padding: 12px 18px; border-left: 3px solid var(--accent); background: var(--bg-alt); color: var(--ink); font-style: italic; border-radius: 0 6px 6px 0; }
+  .table-scroll { overflow-x: auto; margin: 8px 0 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+  thead th { background: var(--bg-alt); font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); font-weight: 500; }
+  tbody td { color: var(--text-2); }
+  tbody tr:first-child td { font-weight: 600; color: var(--ink); }
+  code { font-family: var(--mono); font-size: .9em; background: var(--bg-alt); padding: 1px 5px; border-radius: 3px; }
+  .conv-note { font-family: var(--mono); font-size: 10.5px; color: var(--text-3); margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+</style>
+<div class="wrap">
+  <p class="eyebrow">MetodePenelitian.com — Dokumen Produk</p>
+  <h1>MetodePenelitian.com - UX Research Document v1.0</h1>
+<p>Purpose: Define the user research plan, findings framework, and research strategy for the MetodePenelitian.com platform.</p>
+<h3>1. Document Control</h3>
+<ul>
+  <li>Document Information</li>
+  <li>Version History</li>
+  <li>Approvals</li>
+  <li>Related Documents</li>
+</ul>
+<h3>2. Research Objectives</h3>
+<ul>
+  <li>Business Goals</li>
+  <li>Research Questions</li>
+  <li>Success Criteria</li>
+</ul>
+<h3>3. Research Scope</h3>
+<ul>
+  <li>In Scope</li>
+  <li>Out of Scope</li>
+  <li>Assumptions</li>
+  <li>Constraints</li>
+</ul>
+<h3>4. Target Participants</h3>
+<ul>
+  <li>Undergraduate Students</li>
+  <li>Master's Students</li>
+  <li>Doctoral Students</li>
+  <li>Lecturers</li>
+  <li>Researchers</li>
+  <li>Academic Institutions</li>
+</ul>
+<h3>5. Research Methods</h3>
+<ul>
+  <li>Interviews</li>
+  <li>Online Surveys</li>
+  <li>Usability Testing</li>
+  <li>Competitive Benchmarking</li>
+  <li>Heuristic Evaluation</li>
+  <li>Analytics Review</li>
+</ul>
+<h3>6. Competitor Review</h3>
+<ul>
+  <li>Direct Competitors</li>
+  <li>Indirect Competitors</li>
+  <li>Feature Comparison</li>
+  <li>Strengths &amp; Weaknesses</li>
+</ul>
+<h3>7. User Needs &amp; Pain Points</h3>
+<ul>
+  <li>Primary Needs</li>
+  <li>Pain Points</li>
+  <li>Opportunities</li>
+</ul>
+<h3>8. Research Findings</h3>
+<ul>
+  <li>Insights</li>
+  <li>Behavior Patterns</li>
+  <li>Key Opportunities</li>
+</ul>
+<h3>9. UX Recommendations</h3>
+<ul>
+  <li>Navigation</li>
+  <li>Content Strategy</li>
+  <li>Search</li>
+  <li>AI Features</li>
+  <li>Learning Experience</li>
+</ul>
+<h3>10. Appendix</h3>
+<ul>
+  <li>Interview Guide</li>
+  <li>Survey Questionnaire</li>
+  <li>References</li>
+</ul>
+  <p class="conv-note">Dikonversi otomatis dari MetodePenelitian.com - UX Research Document v1.0.docx — struktur asli (heading, list, tabel) dipertahankan.</p>
+</div>

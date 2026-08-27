@@ -1,0 +1,1013 @@
+<title>MetodePenelitian Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    /* Token ini diambil langsung dari nilai computed live localhost:3000
+       (getComputedStyle di Header/Footer/halaman nyata), bukan ditebak
+       dari tailwind.config.ts. ink-900/950 dan gold-* TIDAK dipakai di UI
+       manapun di situs asli — sengaja tidak dipakai di sini juga. */
+    --bg: #FFFFFF;
+    --bg-alt: #F8FAFC;
+    --surface: #FFFFFF;
+    --ink: #0F172A;
+    --text-2: #475569;
+    --text-3: #64748B;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --accent: #1F47F5;
+    --accent-2: #1836E1;
+    --accent-soft: #D9E6FF;
+    --warn: #B45309;
+    --serif: "Source Serif 4", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1728;
+      --bg-alt: #16233F;
+      --surface: #16233F;
+      --ink: #F1F5F9;
+      --text-2: #9DB2CE;
+      --text-3: #6C8AB3;
+      --border: #2C4265;
+      --border-strong: #39547D;
+      --accent: #598DFF;
+      --accent-2: #8EB6FF;
+      --accent-soft: #1A2C5C;
+      --warn: #E8A857;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1728;
+    --bg-alt: #16233F;
+    --surface: #16233F;
+    --ink: #F1F5F9;
+    --text-2: #9DB2CE;
+    --text-3: #6C8AB3;
+    --border: #2C4265;
+    --border-strong: #39547D;
+    --accent: #598DFF;
+    --accent-2: #8EB6FF;
+    --accent-soft: #1A2C5C;
+    --warn: #E8A857;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: #fff; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 56px);
+  }
+
+  /* ---------- Layout: sidebar + content ---------- */
+  .shell {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+  }
+
+  nav.toc {
+    position: sticky;
+    top: 24px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    padding: 20px 0 40px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+  }
+  @media (max-width: 900px) {
+    nav.toc { position: static; max-height: none; padding: 16px 0; }
+  }
+  nav.toc .toc-label {
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--text-3);
+    font-size: 10.5px;
+    margin-bottom: 10px;
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin: 0; }
+  nav.toc a {
+    display: block;
+    color: var(--text-2);
+    padding: 5px 0 5px 14px;
+    border-left: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+  }
+  nav.toc a:hover { color: var(--ink); text-decoration: none; border-left-color: var(--border-strong); }
+  nav.toc .toc-sub a { padding-left: 26px; font-size: 11.5px; color: var(--text-3); }
+  nav.toc .toc-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  main { min-width: 0; padding-bottom: 120px; }
+
+  /* ---------- Hero / header ---------- */
+  header.doc-head {
+    padding: clamp(48px, 8vw, 84px) 0 44px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .22em;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1.doc-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(34px, 5vw, 54px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+    max-width: 16ch;
+  }
+  .doc-title em { font-style: italic; color: var(--accent); }
+  p.doc-lede {
+    font-size: 17px;
+    color: var(--text-2);
+    max-width: 62ch;
+    margin: 0 0 28px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-3);
+  }
+  .meta-row dt { text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+  .meta-row dd { margin: 0; color: var(--text-2); font-family: var(--sans); font-size: 13px; }
+  .meta-item { display: block; }
+
+  /* ---------- Generic section rhythm ---------- */
+  section.block { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  section.block:last-of-type { border-bottom: none; }
+  h2.block-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(24px, 3vw, 30px);
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  p.block-lede { color: var(--text-2); max-width: 68ch; margin: 0 0 32px; font-size: 15.5px; }
+
+  /* ---------- Synthesis table ---------- */
+  .synth-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .synth-table th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-3);
+    font-weight: 500;
+    padding: 0 16px 10px 0;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .synth-table td {
+    padding: 14px 16px 14px 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .synth-table td:first-child { font-weight: 600; white-space: nowrap; width: 1%; padding-right: 28px; }
+  .synth-table tr:last-child td { border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+
+  /* ---------- Principles ---------- */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .principle {
+    background: var(--bg);
+    padding: 26px 24px;
+  }
+  .principle .num {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 12px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .principle h3 {
+    font-family: var(--serif);
+    font-size: 18px;
+    margin: 0 0 8px;
+  }
+  .principle p { margin: 0; color: var(--text-2); font-size: 13.8px; }
+
+  /* ---------- Module cards ---------- */
+  .module {
+    padding: 60px 0;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 24px;
+  }
+  .module:last-of-type { border-bottom: none; }
+  .module-head {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 6px;
+  }
+  .module-num {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--border-strong);
+    font-weight: 500;
+  }
+  h2.module-title {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(24px, 3vw, 30px);
+    margin: 0;
+  }
+  .module-purpose { color: var(--text-2); max-width: 62ch; margin: 4px 0 18px; font-size: 15px; }
+  .module-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 4px 9px;
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    color: var(--text-2);
+  }
+  .tag.tag-inspo { color: var(--accent); border-color: var(--accent); }
+
+  .module-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; }
+  @media (max-width: 820px) { .module-body { grid-template-columns: 1fr; } }
+
+  .tree-col .col-label, .rel-col .col-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--text-3);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  pre.tree {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.72;
+    color: var(--text-2);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 0;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+  }
+  pre.tree .feat { color: var(--ink); }
+  pre.tree .lead { color: var(--accent); }
+
+  .rel-box {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    background: var(--bg-alt);
+    margin-bottom: 14px;
+  }
+  .rel-box:last-child { margin-bottom: 0; }
+  .rel-concept {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 15.5px;
+    margin: 0 0 10px;
+  }
+  .rel-links { display: flex; flex-wrap: wrap; gap: 7px 8px; font-family: var(--mono); font-size: 12px; }
+  .rel-links .lnk {
+    color: var(--text-2);
+    border-bottom: 1px dashed var(--border-strong);
+    padding-bottom: 1px;
+  }
+  .rel-links .arr { color: var(--accent); }
+
+  /* ---------- Knowledge graph diagram ---------- */
+  .graph-chain {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    margin: 8px 0 28px;
+  }
+  .graph-node {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--accent-soft);
+    color: var(--accent-2);
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 9px 14px;
+    white-space: nowrap;
+  }
+  .graph-arrow {
+    color: var(--text-3);
+    font-family: var(--mono);
+    padding: 0 10px;
+    font-size: 15px;
+  }
+  .graph-note {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    background: var(--bg-alt);
+  }
+  .graph-note .side { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); white-space: nowrap; padding-top: 2px; }
+  .graph-note p { margin: 0; color: var(--text-2); font-size: 14px; }
+  .graph-vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: 18px; align-items: center; margin: 24px 0; }
+  @media (max-width: 640px) { .graph-vs { grid-template-columns: 1fr; } }
+  .graph-vs-card { border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
+  .graph-vs-card.old { opacity: .65; }
+  .graph-vs-card.new { border-color: var(--accent); background: var(--accent-soft); }
+  .graph-vs-label { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin-bottom: 8px; display: block; }
+  .graph-vs-content { font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .graph-vs-arrow { font-family: var(--serif); font-style: italic; color: var(--text-3); text-align: center; }
+
+  /* ---------- Nav reconciliation ---------- */
+  .nav-current {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 18px 20px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    border-radius: 6px;
+    margin-bottom: 28px;
+  }
+  .nav-current .chip { padding: 5px 11px; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 4px; color: var(--ink); }
+  .nav-current .chip.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-current .sep { color: var(--text-3); }
+
+  .recon-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .recon-table th {
+    text-align: left; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--text-3); font-weight: 500; padding: 0 14px 10px 0;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .recon-table td { padding: 12px 14px 12px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .recon-table tr:last-child td { border-bottom: none; }
+  .recon-table td.nav-item { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; position: relative; top: -1px; }
+  .status-dot.live { background: var(--accent); }
+  .status-dot.deepen { background: var(--warn); }
+
+  /* ---------- Open questions ---------- */
+  .oq-list { display: flex; flex-direction: column; gap: 14px; }
+  .oq-item { display: flex; gap: 14px; border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
+  .oq-item .oq-num { font-family: var(--mono); color: var(--accent); font-size: 13px; padding-top: 1px; }
+  .oq-item p { margin: 0; font-size: 14px; color: var(--text-2); }
+  .oq-item strong { color: var(--ink); }
+
+  footer.doc-foot {
+    padding: 40px 0 0;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text-3);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+</style>
+
+<div class="wrap">
+  <div class="shell">
+    <nav class="toc" aria-label="Daftar isi">
+      <p class="toc-label">Dokumen</p>
+      <ol>
+        <li><a href="#synthesis">Sintesis Referensi</a></li>
+        <li><a href="#principles">Prinsip Desain</a></li>
+      </ol>
+      <div class="toc-divider"></div>
+      <p class="toc-label">11 Modul</p>
+      <ol>
+        <li><a href="#m01">01 Discover</a></li>
+        <li><a href="#m02">02 Learn</a></li>
+        <li><a href="#m03">03 Plan</a></li>
+        <li><a href="#m04">04 Execute</a></li>
+        <li><a href="#m05">05 Analyze</a></li>
+        <li><a href="#m06">06 Write</a></li>
+        <li><a href="#m07">07 Cite &amp; Evidence</a></li>
+        <li><a href="#m08">08 Metode AI</a></li>
+        <li><a href="#m09">09 Academy</a></li>
+        <li><a href="#m10">10 Integrations</a></li>
+        <li><a href="#m11">11 My Research</a></li>
+      </ol>
+      <div class="toc-divider"></div>
+      <ol>
+        <li><a href="#graph">Research Knowledge Graph</a></li>
+        <li><a href="#nav">Rekonsiliasi Navigasi</a></li>
+        <li><a href="#next">Pertanyaan Terbuka</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <header class="doc-head">
+        <p class="eyebrow">Master Product Architecture — Draft v1</p>
+        <h1 class="doc-title">MetodePenelitian.com sebagai <em>Research Operating System</em></h1>
+        <p class="doc-lede">
+          Dari page-centric menjadi research-lifecycle-centric. Dokumen ini memetakan 11 modul inti sampai level
+          module → submodule → feature → relationship, mensintesis struktur terbaik dari delapan kelas produk
+          berbeda menjadi satu sistem yang koheren. Sitemap dan PRD diturunkan dari sini, bukan sebaliknya.
+        </p>
+        <dl class="meta-row">
+          <div class="meta-item"><dt>Status</dt><dd>Draft — sebelum BRD/PRD</dd></div>
+          <div class="meta-item"><dt>Cakupan</dt><dd>Module → Submodule → Feature → Relationship</dd></div>
+          <div class="meta-item"><dt>Diturunkan dari</dt><dd>SAGE · Scribbr · Elicit · Consensus · ResearchRabbit · Connected Papers · Zotero · Mendeley</dd></div>
+        </dl>
+      </header>
+
+      <section class="block" id="synthesis">
+        <h2 class="block-title">Sintesis Referensi</h2>
+        <p class="block-lede">
+          Bukan satu situs jadi acuan. Delapan kelas produk, masing-masing menyumbang satu lapisan yang paling
+          mereka kuasai — digabung jadi satu research lifecycle.
+        </p>
+        <div class="table-scroll">
+          <table class="synth-table">
+            <thead>
+              <tr><th>Referensi</th><th>Yang kita ambil</th><th>Mendarat di modul</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>SAGE Research Methods</td><td>Methodology Knowledge Graph — Project Planner, Methods Map, Which Stats Test</td><td>Learn, Plan, Analyze</td></tr>
+              <tr><td>Scribbr</td><td>Accessible Research Education — konten disusun berdasar kebutuhan (Researching / Writing / Citing), bukan nama database</td><td>Learn, Write, Cite &amp; Evidence</td></tr>
+              <tr><td>Elicit</td><td>AI Research Workflow — Question → Search → Screening → Extraction → Synthesis → Report, dengan keterlacakan sumber</td><td>Metode AI, Discover</td></tr>
+              <tr><td>Consensus</td><td>Evidence Search Engine — keyword + natural language + Boolean, filter multi-dimensi, jawaban bersumber literatur</td><td>Discover</td></tr>
+              <tr><td>ResearchRabbit + Connected Papers</td><td>Research Discovery Graph — jaringan sitasi, bukan cuma keyword match</td><td>Discover, Research Knowledge Graph</td></tr>
+              <tr><td>Zotero</td><td>Research Library — Library → Collections → Items → Notes → Tags, satu item di banyak koleksi</td><td>Execute, Cite &amp; Evidence</td></tr>
+              <tr><td>Mendeley</td><td>Reference + Writing Workflow — PDF → Read/Annotate → Organize → Cite, integrasi Word</td><td>Execute, Write, Integrations</td></tr>
+              <tr><td>SPSS / SmartPLS / AMOS / R / NVivo dst.</td><td>Analysis ecosystem — bukan tools berdiri sendiri, tapi lapisan software di balik tiap metode</td><td>Analyze, Integrations</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="principles">
+        <h2 class="block-title">Prinsip Desain</h2>
+        <p class="block-lede">Empat aturan yang menahan 11 modul ini supaya tidak kembali jadi daftar fitur.</p>
+        <div class="principles">
+          <div class="principle">
+            <span class="num">01</span>
+            <h3>Lifecycle, bukan halaman</h3>
+            <p>Navigasi mengikuti tahap kerja peneliti (Discover → Write), bukan daftar 70 nama fitur.</p>
+          </div>
+          <div class="principle">
+            <span class="num">02</span>
+            <h3>Setiap konsep adalah simpul</h3>
+            <p>Tidak ada halaman buntu. SEM selalu bertaut ke metode terkait, software, kalkulator, contoh, dan AI.</p>
+          </div>
+          <div class="principle">
+            <span class="num">03</span>
+            <h3>Satu AI, konteks penuh</h3>
+            <p>Metode AI bukan enam generator terpisah — satu asisten yang tahu seluruh proyek pengguna.</p>
+          </div>
+          <div class="principle">
+            <span class="num">04</span>
+            <h3>Satu ruang kerja</h3>
+            <p>Setelah login, produk bukan lagi kumpulan halaman — My Research adalah tempat kerja sungguhan.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 01 — DISCOVER ============ -->
+      <section class="module" id="m01">
+        <div class="module-head">
+          <span class="module-num">01</span>
+          <h2 class="module-title">Discover</h2>
+        </div>
+        <p class="module-purpose">Tempat pengguna mencari pengetahuan sebelum tahu apa yang dicari. Menjawab: "apa yang sudah diketahui tentang ini?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">Consensus</span><span class="tag tag-inspo">ResearchRabbit</span><span class="tag tag-inspo">Connected Papers</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Research Search
+├── <span class="feat">Natural-language query</span> (bukan cuma keyword)
+├── <span class="feat">Boolean &amp; filter</span> — tahun, akses terbuka, sitasi, jenis studi
+└── <span class="feat">Jawaban bersumber</span> literatur, bukan generatif bebas
+
+Papers · Topics · Authors · Journals
+├── <span class="feat">Halaman entitas</span> per paper/penulis/jurnal
+└── <span class="feat">Metrik kredibilitas</span> — sitasi, rank jurnal, tahun
+
+Research Trends
+└── <span class="feat">Topik yang sedang naik</span> per bidang ilmu
+
+Research Graph
+└── <span class="feat">Peta hubungan</span> paper ↔ metode ↔ penulis (lihat §Research Knowledge Graph)
+
+Saved Searches
+└── <span class="feat">Tersambung ke proyek</span> di My Research</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Satu hasil pencarian paper</p>
+              <div class="rel-links">
+                <span class="lnk">Author profile</span><span class="arr">·</span>
+                <span class="lnk">Cited by</span><span class="arr">·</span>
+                <span class="lnk">Cites</span><span class="arr">·</span>
+                <span class="lnk">Metode dipakai</span><span class="arr">·</span>
+                <span class="lnk">Simpan ke Library</span><span class="arr">·</span>
+                <span class="lnk">Tanya Metode AI</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 02 — LEARN ============ -->
+      <section class="module" id="m02">
+        <div class="module-head">
+          <span class="module-num">02</span>
+          <h2 class="module-title">Learn</h2>
+        </div>
+        <p class="module-purpose">Knowledge infrastructure. Menjawab: "bagaimana cara kerja metode ini, dan kapan saya pakai?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">SAGE Research Methods</span><span class="tag tag-inspo">Scribbr</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Research Fundamentals · Process · Designs · Methodology
+Quantitative · Qualitative · Mixed Methods
+Data Collection · Sampling · Measurement · Instruments
+Data Analysis · Statistics · Research Ethics · Academic Writing
+Research Dictionary · Research Methods Map · Cases · Examples
+├── <span class="feat">Methods Map</span> — jaringan metode luas ↔ spesifik ↔ terkait (bukan daftar A-Z)
+└── <span class="feat">Setiap entri metode</span> dibangun dari template tetap ↓</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship — template wajib tiap entri metode</span>
+            <div class="rel-box">
+              <p class="rel-concept">Contoh: Structural Equation Modeling</p>
+              <pre class="tree" style="padding:0;border:none;background:none;">Definition · When to Use · Requirements · Sample Size
+Variables · Assumptions
+Related Methods    → PLS-SEM, CB-SEM, Path Analysis
+Statistical Tests  → lihat §Analyze
+Software           → SmartPLS, AMOS, R, LISREL
+Step-by-Step Guide · Example Dataset · Example Research
+Related Papers     → lihat §Discover
+Templates          → lihat §Write
+Calculator         → lihat §Analyze
+Ask Metode AI      → lihat §Metode AI</pre>
+              <p style="margin:12px 0 0;font-size:13px;color:var(--text-2)">Ini yang belum dilakukan lengkap oleh kompetitor manapun — tiap konsep adalah hub, bukan artikel berdiri sendiri.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 03 — PLAN ============ -->
+      <section class="module" id="m03">
+        <div class="module-head">
+          <span class="module-num">03</span>
+          <h2 class="module-title">Plan</h2>
+        </div>
+        <p class="module-purpose">Di sinilah penelitian mulai dibentuk. Menjawab: "apa yang harus saya putuskan sebelum turun ke lapangan?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">SAGE Project Planner</span><span class="tag">dibuat interaktif</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Research Idea → Problem Identification → Research Gap → Topic → Title
+├── <span class="feat">Gap finder</span> ditarik dari hasil Discover tersimpan
+
+Research Questions · Objectives · Hypotheses
+Variables · Constructs · Indicators
+Literature Strategy
+Theoretical Framework · Conceptual Framework · Path Diagram
+├── <span class="feat">Path diagram builder</span> — visual, bukan cuma teks
+
+Research Design · Population · Sampling · Sample Size
+├── <span class="feat">Terhubung ke Sample Size Calculator</span> (§Analyze)
+
+Instrument · Data Collection Plan · Analysis Plan
+Research Protocol
+└── <span class="feat">Output</span>: satu dokumen protokol, siap jadi Bab 1–3 proposal</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Setiap keputusan di Plan mengunci pilihan berikutnya</p>
+              <div class="rel-links">
+                <span class="lnk">Variabel</span><span class="arr">→</span>
+                <span class="lnk">Desain</span><span class="arr">→</span>
+                <span class="lnk">Sampling</span><span class="arr">→</span>
+                <span class="lnk">Instrumen</span><span class="arr">→</span>
+                <span class="lnk">rekomendasi Analysis Plan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 04 — EXECUTE ============ -->
+      <section class="module" id="m04">
+        <div class="module-head">
+          <span class="module-num">04</span>
+          <h2 class="module-title">Execute</h2>
+        </div>
+        <p class="module-purpose">Research workspace harian. Menjawab: "di mana saya menyimpan dan mengelola bahan penelitian saya?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">Zotero</span><span class="tag tag-inspo">Mendeley</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Projects
+└── <span class="feat">Satu proyek</span> = satu ruang kerja penuh (lihat §My Research)
+
+Literature
+├── Papers · Collections · PDFs · Notes · References
+└── <span class="feat">Satu paper bisa ada di banyak koleksi</span> (pola Zotero)
+
+Data
+├── Dataset · Variables · Codebook · Cleaning
+└── <span class="feat">Codebook otomatis</span> dari variabel yang didefinisikan di Plan
+
+Instruments
+└── Questionnaire · Interview Guide · Observation · Tests
+
+Research Progress
+└── <span class="feat">Progress tracker</span> lintas tahap lifecycle, bukan cuma checklist</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">PDF yang diunggah bukan file mati</p>
+              <div class="rel-links">
+                <span class="lnk">Auto-extract sitasi</span><span class="arr">→</span>
+                <span class="lnk">Reference Library</span><span class="arr">·</span>
+                <span class="lnk">Highlight/Note</span><span class="arr">→</span>
+                <span class="lnk">Literature Review draft</span> (§Write)
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 05 — ANALYZE ============ -->
+      <section class="module" id="m05">
+        <div class="module-head">
+          <span class="module-num">05</span>
+          <h2 class="module-title">Analyze</h2>
+        </div>
+        <p class="module-purpose">Kekuatan terbesar produk ini. Menjawab: "uji apa yang tepat, dan bagaimana menafsirkan hasilnya?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">SAGE Which Stats Test</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Analysis Advisor
+└── <span class="feat">Wizard tanya-jawab</span> → rekomendasi uji (lihat kanan)
+
+Quantitative
+├── Descriptive · Normality · Validity · Reliability
+├── Correlation · Regression · T-Test · ANOVA · Chi-Square
+└── Mediation · Moderation · SEM · PLS-SEM
+
+Qualitative
+└── Coding · Thematic · Content · Grounded Theory · Narrative
+
+Mixed Methods
+Calculators
+└── <span class="feat">Kalkulator per uji</span>, bukan generik satu untuk semua
+
+Software Guides
+└── SPSS · SmartPLS · AMOS · R · Python · Stata · NVivo · ATLAS.ti · MAXQDA</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship — Analysis Advisor</span>
+            <div class="rel-box">
+              <p class="rel-concept">Pengguna tidak perlu tahu nama ujinya</p>
+              <pre class="tree" style="padding:0;border:none;background:none;">Tujuan penelitian?
+  Berapa variabel? Kategorikal atau numerik?
+    Independent atau paired? Ada mediator?
+      → "Gunakan PLS-SEM"</pre>
+              <div class="rel-links" style="margin-top:10px">
+                <span class="lnk">Learn</span><span class="arr">→</span>
+                <span class="lnk">Calculate</span><span class="arr">→</span>
+                <span class="lnk">Analyze</span><span class="arr">→</span>
+                <span class="lnk">Software</span><span class="arr">→</span>
+                <span class="lnk">Example</span><span class="arr">→</span>
+                <span class="lnk">Ask AI</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 06 — WRITE ============ -->
+      <section class="module" id="m06">
+        <div class="module-head">
+          <span class="module-num">06</span>
+          <h2 class="module-title">Write</h2>
+        </div>
+        <p class="module-purpose">Bukan sekadar AI writer. Menjawab: "bagaimana saya menyusun naskah dari kerangka sampai draf submit?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">Scribbr</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Dokumen: Proposal · Thesis · Dissertation · Journal Article · Report
+Bagian: Introduction · Literature Review · Methodology
+        Results · Discussion · Conclusion
+Bantuan Bahasa: Paraphrasing · Academic Language · Grammar · Translation
+Templates
+└── <span class="feat">Template terkunci ke jenjang</span> — S1/S2/S3 beda struktur wajib</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Bab Metodologi tidak ditulis dari nol</p>
+              <div class="rel-links">
+                <span class="lnk">Ditarik dari Plan</span><span class="arr">+</span>
+                <span class="lnk">Execute</span><span class="arr">→</span>
+                <span class="lnk">draf awal otomatis</span><span class="arr">→</span>
+                <span class="lnk">diedit manusia</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 07 — CITE & EVIDENCE ============ -->
+      <section class="module" id="m07">
+        <div class="module-head">
+          <span class="module-num">07</span>
+          <h2 class="module-title">Cite &amp; Evidence</h2>
+        </div>
+        <p class="module-purpose">Menjawab: "dari mana klaim ini berasal, dan bagaimana mengutipnya dengan benar?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">Zotero</span><span class="tag tag-inspo">Mendeley</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Citation Generator · Citation Manager · Reference Library · DOI Lookup
+Gaya: APA · Harvard · Vancouver · Chicago · IEEE
+Format ekspor: RIS · BibTeX
+Sinkron: Zotero · Mendeley</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Sitasi bukan teks statis</p>
+              <div class="rel-links">
+                <span class="lnk">Tiap sitasi</span><span class="arr">→</span>
+                <span class="lnk">tertaut balik ke paper asal</span> (§Discover)<span class="arr">→</span>
+                <span class="lnk">bisa dibuka ulang</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 08 — METODE AI ============ -->
+      <section class="module" id="m08">
+        <div class="module-head">
+          <span class="module-num">08</span>
+          <h2 class="module-title">Metode AI</h2>
+        </div>
+        <p class="module-purpose">Satu AI yang tahu konteks seluruh proyek — bukan enam generator independen.</p>
+        <div class="module-tags"><span class="tag tag-inspo">Elicit</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Kapabilitas → Feature</span>
+            <pre class="tree">Ask Research · Find Research Gap · Generate Research Ideas
+Review Literature · Compare Papers · Explain Methods
+Recommend Method · Recommend Analysis · Analyze Results
+Explain Statistics · Review Writing · Research Critic
+└── <span class="feat">Semua mengakses Project Context yang sama</span> — bukan sesi terpisah</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Pola Elicit: keterlacakan wajib</p>
+              <div class="rel-links">
+                <span class="lnk">Research Question</span><span class="arr">→</span>
+                <span class="lnk">Search</span><span class="arr">→</span>
+                <span class="lnk">Screening</span><span class="arr">→</span>
+                <span class="lnk">Extraction</span><span class="arr">→</span>
+                <span class="lnk">Synthesis</span><span class="arr">→</span>
+                <span class="lnk">Report</span>
+              </div>
+              <p style="margin:10px 0 0;font-size:13px;color:var(--text-2)">Setiap keluaran AI harus bisa ditelusuri balik ke sumbernya — bukan jawaban generatif tanpa jejak.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 09 — ACADEMY ============ -->
+      <section class="module" id="m09">
+        <div class="module-head">
+          <span class="module-num">09</span>
+          <h2 class="module-title">Academy</h2>
+        </div>
+        <p class="module-purpose">Menjawab: "bagaimana saya belajar ini secara terstruktur, bukan sepotong-sepotong?"</p>
+        <div class="module-tags"><span class="tag">berbayar / terstruktur</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Courses · Learning Paths · Tutorials · Workshops
+Practice · Datasets · Assessments · Certificates</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Batas dengan Learn</p>
+              <p style="font-size:13.5px;color:var(--text-2);margin:0">Learn = rujukan gratis, dibaca lompat-lompat. Academy = kursus berbayar, diikuti berurutan dari awal sampai sertifikat.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 10 — INTEGRATIONS ============ -->
+      <section class="module" id="m10">
+        <div class="module-head">
+          <span class="module-num">10</span>
+          <h2 class="module-title">Integrations</h2>
+        </div>
+        <p class="module-purpose">Menjawab: "bagaimana produk ini nyambung ke software yang sudah saya pakai?"</p>
+        <div class="module-tags"><span class="tag tag-inspo">Zotero</span><span class="tag tag-inspo">Mendeley</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Reference    → Zotero · Mendeley
+Writing      → Microsoft Word · Google Docs · LaTeX
+Quantitative → SPSS · SmartPLS · AMOS · R · Python · Stata
+Qualitative  → NVivo · ATLAS.ti · MAXQDA
+Data Sources → repositori dataset eksternal</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Bukan halaman terpisah</p>
+              <p style="font-size:13.5px;color:var(--text-2);margin:0">Tiap integrasi muncul persis di titik butuhnya — Zotero di Cite &amp; Evidence, SmartPLS di halaman SEM, Word di Write. Halaman Integrations sendiri cuma indeksnya.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ MODULE 11 — MY RESEARCH ============ -->
+      <section class="module" id="m11">
+        <div class="module-head">
+          <span class="module-num">11</span>
+          <h2 class="module-title">My Research</h2>
+        </div>
+        <p class="module-purpose">Setelah login, fokus bukan homepage lagi. Ini Research Operating System-nya.</p>
+        <div class="module-tags"><span class="tag">butuh autentikasi nyata — belum ada di kode saat ini</span></div>
+        <div class="module-body">
+          <div class="tree-col">
+            <span class="col-label">Submodule → Feature</span>
+            <pre class="tree">Dashboard · Projects · Library · Papers · Notes
+Datasets · Analyses · Documents · Citations
+AI Conversations · Integrations
+└── <span class="feat">Satu proyek</span> = gabungan Plan + Execute + Analyze + Write + Cite,
+    bukan lima halaman terpisah yang harus dibuka bergantian</pre>
+          </div>
+          <div class="rel-col">
+            <span class="col-label">Relationship</span>
+            <div class="rel-box">
+              <p class="rel-concept">Prasyarat teknis</p>
+              <p style="font-size:13.5px;color:var(--text-2);margin:0">Modul ini tidak bisa dibangun sebelum autentikasi nyata ada. Prop <code style="font-family:var(--mono);font-size:12.5px">isAuthenticated</code> di Header sudah disiapkan sebagai sambungan, tapi belum ada pemanggil.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RESEARCH KNOWLEDGE GRAPH ============ -->
+      <section class="block" id="graph">
+        <h2 class="block-title">Research Knowledge Graph</h2>
+        <p class="block-lede">
+          Bagian paling berpotensi jadi pembeda. Penelitian bukan rantai linear — ini jaringan entitas yang saling
+          menunjuk, dan itulah yang membuat "buka satu, temukan semua yang terkait" mungkin di seluruh produk.
+        </p>
+
+        <div class="graph-vs">
+          <div class="graph-vs-card old">
+            <span class="graph-vs-label">Model lama</span>
+            <div class="graph-vs-content">Paper A → related to → Paper B</div>
+          </div>
+          <div class="graph-vs-arrow">menjadi</div>
+          <div class="graph-vs-card new">
+            <span class="graph-vs-label">Model MetodePenelitian.com</span>
+            <div class="graph-vs-content">10 jenis entitas, saling bertaut</div>
+          </div>
+        </div>
+
+        <div class="graph-chain" role="img" aria-label="Metode terhubung ke Desain Penelitian, Variabel, Instrumen, Teknik Sampling, Statistical Test, Software, Paper, Author, Dataset">
+          <span class="graph-node">Metode</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Desain Penelitian</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Variabel</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Instrumen</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Teknik Sampling</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Statistical Test</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Software</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Paper</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Author</span><span class="graph-arrow">→</span>
+          <span class="graph-node">Dataset</span>
+        </div>
+
+        <div class="graph-note">
+          <span class="side">Konsekuensi teknis</span>
+          <p>
+            Ini bukan cuma keputusan konten — ini bentuk data model. Sepuluh entitas di atas perlu jadi tabel/relasi
+            nyata (bukan tag bebas) supaya "buka SEM, lihat semua paper yang memakainya" bisa query, bukan
+            dikurasi manual. Layak jadi satu keputusan ERD tersendiri sebelum PRD Analyze &amp; Learn ditulis.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ NAV RECONCILIATION ============ -->
+      <section class="block" id="nav">
+        <h2 class="block-title">Rekonsiliasi Navigasi</h2>
+        <p class="block-lede">
+          Kabar baik: header enam-menu yang sudah live di kode <em style="font-style:normal;color:var(--ink);font-weight:600">persis</em>
+          mengikuti kesimpulan dokumen ini. 11 modul di atas tidak menuntut nav dibongkar — cuma menuntut isinya didalamkan.
+        </p>
+
+        <div class="nav-current">
+          <span class="chip">Discover</span><span class="chip">Learn</span><span class="chip">Research</span>
+          <span class="chip">Analyze</span><span class="chip">Write</span><span class="chip">Academy</span>
+          <span class="sep">·</span>
+          <span class="chip primary">Metode AI</span>
+          <span class="chip">Masuk / My Research</span>
+        </div>
+
+        <div class="table-scroll">
+          <table class="recon-table">
+            <thead><tr><th>Item nav (sudah live)</th><th>Modul arsitektur ini</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="nav-item">Discover</td><td>01 Discover</td><td><span class="status-dot live"></span>cocok langsung</td></tr>
+              <tr><td class="nav-item">Learn</td><td>02 Learn</td><td><span class="status-dot deepen"></span>submenu perlu didalamkan</td></tr>
+              <tr><td class="nav-item">Research</td><td>03 Plan + 04 Execute + 07 Cite &amp; Evidence</td><td><span class="status-dot deepen"></span>satu label menaungi tiga modul — perlu diputuskan urutan submenu</td></tr>
+              <tr><td class="nav-item">Analyze</td><td>05 Analyze</td><td><span class="status-dot deepen"></span>submenu perlu didalamkan, termasuk Analysis Advisor</td></tr>
+              <tr><td class="nav-item">Write</td><td>06 Write</td><td><span class="status-dot deepen"></span>submenu perlu didalamkan</td></tr>
+              <tr><td class="nav-item">Academy</td><td>09 Academy</td><td><span class="status-dot live"></span>cocok langsung</td></tr>
+              <tr><td class="nav-item">Metode AI (CTA utama)</td><td>08 Metode AI</td><td><span class="status-dot live"></span>cocok langsung, posisi CTA sudah tepat</td></tr>
+              <tr><td class="nav-item">Masuk / My Research</td><td>11 My Research</td><td><span class="status-dot deepen"></span>menunggu autentikasi nyata</td></tr>
+              <tr><td class="nav-item">— (belum ada slot)</td><td>10 Integrations</td><td><span class="status-dot deepen"></span>saat ini cuma di footer — tetap begitu, atau masuk submenu My Research?</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ OPEN QUESTIONS ============ -->
+      <section class="block" id="next">
+        <h2 class="block-title">Pertanyaan Terbuka</h2>
+        <p class="block-lede">Perlu diputuskan sebelum sitemap diturunkan dari dokumen ini.</p>
+        <div class="oq-list">
+          <div class="oq-item">
+            <span class="oq-num">01</span>
+            <p><strong>Urutan submenu "Research".</strong> Plan → Execute → Cite &amp; Evidence dalam satu label — urutan tampil di dropdown ikut urutan lifecycle, atau Execute (workspace harian) ditonjolkan duluan?</p>
+          </div>
+          <div class="oq-item">
+            <span class="oq-num">02</span>
+            <p><strong>Integrations berdiri sendiri atau tersebar?</strong> Dokumen ini condong "tersebar di titik butuh" — perlu disepakati sebelum PRD Integrations ditulis.</p>
+          </div>
+          <div class="oq-item">
+            <span class="oq-num">03</span>
+            <p><strong>Research Knowledge Graph: fase berapa?</strong> Ini pembeda terbesar tapi juga paling berat secara data model. Masuk MVP, atau fase 2 setelah 11 modul konten dasar berdiri?</p>
+          </div>
+          <div class="oq-item">
+            <span class="oq-num">04</span>
+            <p><strong>Analysis Advisor butuh backend keputusan (decision tree/rule engine).</strong> Ini beda kelas dari kalkulator statis yang sudah ada — perlu diskusi arsitektur teknis terpisah.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="doc-foot">
+        <span>Master Product Architecture — MetodePenelitian.com</span>
+        <span>Langkah berikut: Sitemap → PRD, diturunkan dari dokumen ini</span>
+      </footer>
+    </main>
+  </div>
+</div>

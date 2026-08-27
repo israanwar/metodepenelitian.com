@@ -1,17 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { locales, defaultLocale } from "@/i18n/config";
 
-function getLocale(request: NextRequest): string {
-  const accept = request.headers.get("accept-language");
-  if (accept) {
-    const preferred = accept.split(",").map((p) => p.split(";")[0].trim().slice(0, 2));
-    for (const p of preferred) {
-      if ((locales as readonly string[]).includes(p)) return p;
-    }
-  }
-  return defaultLocale;
-}
-
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -24,15 +13,22 @@ export function middleware(request: NextRequest) {
     return;
   }
 
+  // URL sudah eksplisit /id atau /en -> biarkan apa adanya.
   const hasLocale = locales.some(
     (l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`)
   );
   if (hasLocale) return;
 
-  const locale = getLocale(request);
+  // Tidak ada prefix locale di URL: sajikan locale default (id) secara
+  // transparan lewat rewrite, bukan redirect — address bar tetap "/",
+  // "/learn", dst, tidak berubah jadi "/id/...". Locale lain (mis. en)
+  // hanya bisa diakses lewat prefix eksplisit "/en", tidak lagi dideteksi
+  // otomatis dari header Accept-Language browser, supaya perilakunya
+  // konsisten untuk semua pengunjung, bukan tergantung setelan bahasa
+  // browser masing-masing.
   const url = request.nextUrl.clone();
-  url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.redirect(url);
+  url.pathname = `/${defaultLocale}${pathname === "/" ? "" : pathname}`;
+  return NextResponse.rewrite(url);
 }
 
 export const config = {

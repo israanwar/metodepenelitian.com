@@ -1,0 +1,648 @@
+<title>MetodePenelitian Backend Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    /* Token sama dengan Master Product Architecture — diambil dari
+       getComputedStyle live localhost:3000, bukan ditebak dari
+       tailwind.config.ts. */
+    --bg: #FFFFFF;
+    --bg-alt: #F8FAFC;
+    --surface: #FFFFFF;
+    --ink: #0F172A;
+    --text-2: #475569;
+    --text-3: #64748B;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --accent: #1F47F5;
+    --accent-2: #1836E1;
+    --accent-soft: #D9E6FF;
+    --warn: #B45309;
+    --serif: "Source Serif 4", Georgia, serif;
+    --sans: "IBM Plex Sans", -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1728; --bg-alt: #16233F; --surface: #16233F; --ink: #F1F5F9;
+      --text-2: #9DB2CE; --text-3: #6C8AB3; --border: #2C4265; --border-strong: #39547D;
+      --accent: #598DFF; --accent-2: #8EB6FF; --accent-soft: #1A2C5C; --warn: #E8A857;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1728; --bg-alt: #16233F; --surface: #16233F; --ink: #F1F5F9;
+    --text-2: #9DB2CE; --text-3: #6C8AB3; --border: #2C4265; --border-strong: #39547D;
+    --accent: #598DFF; --accent-2: #8EB6FF; --accent-soft: #1A2C5C; --warn: #E8A857;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  ::selection { background: var(--accent); color: #fff; }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  code { font-family: var(--mono); font-size: .92em; background: var(--bg-alt); padding: 1px 5px; border-radius: 3px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 56px); }
+  .shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 56px; align-items: start; }
+  @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } }
+
+  nav.toc { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; padding: 20px 0 40px; font-family: var(--mono); font-size: 12.5px; }
+  @media (max-width: 900px) { nav.toc { position: static; max-height: none; padding: 16px 0; } }
+  nav.toc .toc-label { text-transform: uppercase; letter-spacing: .12em; color: var(--text-3); font-size: 10.5px; margin-bottom: 10px; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc a { display: block; color: var(--text-2); padding: 5px 0 5px 14px; border-left: 2px solid transparent; transition: color .15s, border-color .15s; }
+  nav.toc a:hover { color: var(--ink); text-decoration: none; border-left-color: var(--border-strong); }
+  nav.toc .toc-divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+  main { min-width: 0; padding-bottom: 120px; }
+
+  header.doc-head { padding: clamp(48px, 8vw, 84px) 0 44px; border-bottom: 1px solid var(--border); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .22em; color: var(--accent); margin: 0 0 18px; }
+  h1.doc-title { font-family: var(--serif); font-weight: 700; font-size: clamp(32px, 4.6vw, 50px); line-height: 1.1; letter-spacing: -.01em; margin: 0 0 20px; text-wrap: balance; max-width: 20ch; }
+  p.doc-lede { font-size: 17px; color: var(--text-2); max-width: 66ch; margin: 0 0 28px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 28px; font-family: var(--mono); font-size: 11.5px; color: var(--text-3); }
+  .meta-row dt { text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+  .meta-row dd { margin: 0; color: var(--text-2); font-family: var(--sans); font-size: 13px; }
+
+  section.block { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  section.block:last-of-type { border-bottom: none; }
+  h2.block-title { font-family: var(--serif); font-weight: 700; font-size: clamp(24px, 3vw, 30px); margin: 0 0 12px; text-wrap: balance; }
+  p.block-lede { color: var(--text-2); max-width: 68ch; margin: 0 0 32px; font-size: 15.5px; }
+
+  /* ---------- Diagram arsitektur ---------- */
+  .arch-diagram { border: 1px solid var(--border); border-radius: 8px; padding: 28px 24px; background: var(--bg-alt); }
+  .arch-gateway { text-align: center; }
+  .arch-gateway .node { display: inline-block; background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 12px; padding: 8px 20px; border-radius: 5px; }
+  .arch-line { width: 1px; height: 24px; background: var(--border-strong); margin: 0 auto; }
+  .arch-engines { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 0; }
+  @media (max-width: 780px) { .arch-engines { grid-template-columns: repeat(2, 1fr); } }
+  .arch-engine { border: 1px solid var(--border-strong); border-radius: 6px; padding: 14px 16px; background: var(--surface); text-align: center; }
+  .arch-engine .name { font-family: var(--mono); font-size: 11.5px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+  .arch-gateway-2 { text-align: center; margin-top: 22px; }
+  .arch-gateway-2 .node { display: inline-block; border: 1px dashed var(--border-strong); color: var(--text-2); font-family: var(--mono); font-size: 11.5px; padding: 7px 18px; border-radius: 5px; }
+  .arch-providers { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+  .arch-providers span { font-family: var(--mono); font-size: 11px; color: var(--text-2); border: 1px solid var(--border); border-radius: 4px; padding: 4px 9px; }
+
+  /* ---------- Engine module ---------- */
+  .engine { padding: 56px 0; border-bottom: 1px solid var(--border); scroll-margin-top: 24px; }
+  .engine:last-of-type { border-bottom: none; }
+  .engine-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; flex-wrap: wrap; }
+  .engine-num { font-family: var(--mono); font-size: 14px; color: var(--border-strong); }
+  h2.engine-title { font-family: var(--serif); font-weight: 700; font-size: clamp(23px, 3vw, 28px); margin: 0; }
+  .engine-purpose { color: var(--text-2); max-width: 66ch; margin: 6px 0 24px; font-size: 15px; }
+
+  .domain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px 32px; }
+  .domain h3 { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--text-3); margin: 0 0 10px; }
+  .domain ul { list-style: none; margin: 0; padding: 0; }
+  .domain li { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 13.8px; }
+  .domain li:last-child { border-bottom: none; }
+  .domain li .req { color: var(--ink); }
+  .prio { font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; white-space: nowrap; margin-left: auto; }
+  .prio.p0 { background: var(--accent-soft); color: var(--accent-2); }
+  .prio.p1 { background: var(--bg-alt); color: var(--text-2); border: 1px solid var(--border-strong); }
+  .prio.p2 { background: var(--bg-alt); color: var(--text-3); }
+  .prio.p3 { background: var(--bg-alt); color: var(--border-strong); }
+
+  /* ---------- Domain model entities ---------- */
+  .entity-group { margin-bottom: 32px; }
+  .entity-group:last-child { margin-bottom: 0; }
+  .entity-group h3 { font-family: var(--serif); font-weight: 600; font-size: 17px; margin: 0 0 4px; }
+  .entity-group .owner { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin: 0 0 14px; }
+  .entity-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 24px; }
+  .entity { border-left: 2px solid var(--border-strong); padding: 2px 0 2px 12px; }
+  .entity .ename { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .entity .edesc { font-size: 12.8px; color: var(--text-2); margin-top: 1px; }
+  .entity .erel { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+  .entity .erel b { color: var(--text-2); font-weight: 500; }
+
+  /* ---------- Build order table ---------- */
+  .order-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .order-table th { text-align: left; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); font-weight: 500; padding: 0 14px 10px 0; border-bottom: 1px solid var(--border-strong); }
+  .order-table td { padding: 11px 14px 11px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .order-table tr:last-child td { border-bottom: none; }
+  .order-table td.phase { font-family: var(--mono); font-weight: 600; white-space: nowrap; color: var(--accent); }
+  .table-scroll { overflow-x: auto; }
+
+  /* ---------- Open decisions ---------- */
+  .oq-list { display: flex; flex-direction: column; gap: 14px; }
+  .oq-item { display: flex; gap: 14px; border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; }
+  .oq-item .oq-num { font-family: var(--mono); color: var(--accent); font-size: 13px; padding-top: 1px; }
+  .oq-item p { margin: 0; font-size: 14px; color: var(--text-2); }
+  .oq-item strong { color: var(--ink); }
+
+  footer.doc-foot { padding: 40px 0 0; font-family: var(--mono); font-size: 11.5px; color: var(--text-3); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+</style>
+
+<div class="wrap">
+  <div class="shell">
+    <nav class="toc" aria-label="Daftar isi">
+      <p class="toc-label">Dokumen</p>
+      <ol>
+        <li><a href="#diagram">Diagram Arsitektur</a></li>
+      </ol>
+      <div class="toc-divider"></div>
+      <p class="toc-label">4 Engine + Platform</p>
+      <ol>
+        <li><a href="#core">Research Core Engine</a></li>
+        <li><a href="#intelligence">Research Intelligence Engine</a></li>
+        <li><a href="#integration">Integration Gateway</a></li>
+        <li><a href="#publication">Publication Gateway</a></li>
+        <li><a href="#platform">Platform Services</a></li>
+      </ol>
+      <div class="toc-divider"></div>
+      <ol>
+        <li><a href="#domain-model">Database Domain Model</a></li>
+        <li><a href="#order">Urutan Build</a></li>
+        <li><a href="#decisions">Keputusan Terbuka</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <header class="doc-head">
+        <p class="eyebrow">Backend System Architecture — Draft v1</p>
+        <h1 class="doc-title">Backend MetodePenelitian.com sebagai Research Infrastructure</h1>
+        <p class="doc-lede">
+          Diturunkan dari 140 kebutuhan di Master Backend Requirements. Bukan route → API → page per fitur —
+          empat engine dengan batas domain jelas, plus lapisan Platform yang menopang semuanya. Database Domain
+          Model di bawah adalah entitas dan relasi, bukan DDL — implementasi menyusul setelah ini disepakati.
+        </p>
+        <dl class="meta-row">
+          <div><dt>Status</dt><dd>Draft — sebelum coding</dd></div>
+          <div><dt>Sumber</dt><dd>Master Backend Requirements (140 item)</dd></div>
+          <div><dt>Cakupan</dt><dd>System Architecture + Database Domain Model</dd></div>
+        </dl>
+      </header>
+
+      <section class="block" id="diagram">
+        <h2 class="block-title">Diagram Arsitektur</h2>
+        <p class="block-lede">Bentuk akhirnya sama dengan yang diusulkan — dipertegas batas kepemilikan domainnya.</p>
+
+        <div class="arch-diagram">
+          <div class="arch-gateway"><span class="node">API GATEWAY</span></div>
+          <div class="arch-line"></div>
+          <div class="arch-engines">
+            <div class="arch-engine"><p class="name">Research Core</p></div>
+            <div class="arch-engine"><p class="name">Intelligence</p></div>
+            <div class="arch-engine"><p class="name">Publication</p></div>
+            <div class="arch-engine"><p class="name">Platform</p></div>
+          </div>
+          <div class="arch-gateway-2">
+            <span class="node">INTEGRATION GATEWAY</span>
+          </div>
+          <div class="arch-providers">
+            <span>Crossref</span><span>OpenAlex</span><span>DOAJ</span><span>ORCID</span>
+            <span>SINTA</span><span>GARUDA</span><span>Zotero</span><span>Mendeley</span>
+            <span>OJS</span><span>Word / Docs</span><span>SPSS · SmartPLS · AMOS</span><span>R · Python</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RESEARCH CORE ENGINE ============ -->
+      <section class="engine" id="core">
+        <div class="engine-head"><span class="engine-num">01</span><h2 class="engine-title">Research Core Engine</h2></div>
+        <p class="engine-purpose">Menyimpan semua konteks penelitian: proyek, tahap, variabel, literatur, dataset, dan naskah. Ini sumber kebenaran yang dibaca Intelligence Engine dan ditulis oleh pengguna.</p>
+
+        <div class="domain-grid">
+          <div class="domain">
+            <h3>Project &amp; Context</h3>
+            <ul>
+              <li><span class="req">Research Project Core</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Project Context Engine</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Research Lifecycle State</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Variable &amp; Construct Model</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Hypothesis Model</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Research Planner</span><span class="prio p0">P0</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Literature &amp; Data</h3>
+            <ul>
+              <li><span class="req">Paper Library</span><span class="prio p0">P0</span></li>
+              <li><span class="req">PDF/File Library</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Dataset Management</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Data Validation</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Literature Review Workspace</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Sampling Engine</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Instrument Builder</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Analysis Result Store</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Writing &amp; Citation</h3>
+            <ul>
+              <li><span class="req">Academic Writing Workspace</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Citation Manager</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Citation Styles (CSL)</span><span class="prio p1">P1</span></li>
+              <li><span class="req">RIS/BibTeX Export</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Templates Library</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Version History</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Dataset Repository (contoh publik)</span><span class="prio p2">P2</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RESEARCH INTELLIGENCE ENGINE ============ -->
+      <section class="engine" id="intelligence">
+        <div class="engine-head"><span class="engine-num">02</span><h2 class="engine-title">Research Intelligence Engine</h2></div>
+        <p class="engine-purpose">AI, search, evidence, dan reasoning metodologis — semua baca dari Research Core, tidak pernah jadi sumber kebenaran sendiri. Satu orchestrator, bukan enam AI tools terpisah.</p>
+
+        <div class="domain-grid">
+          <div class="domain">
+            <h3>Research AI</h3>
+            <ul>
+              <li><span class="req">Research AI Orchestrator</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Provider Layer</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Prompt Registry</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Tool Calling</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Conversation Memory</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Usage Metering</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Safety &amp; Academic Integrity</span><span class="prio p0">P0</span></li>
+              <li><span class="req">AI Quality Evaluation</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Writing AI Engine</span><span class="prio p0">P0</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Search &amp; Knowledge</h3>
+            <ul>
+              <li><span class="req">Global Search Backend</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Search Index</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Knowledge Base CMS</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Knowledge Taxonomy</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Semantic Search</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Knowledge Relationship Layer</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Document Parser</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Citation Extraction</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Advisors &amp; Analysis</h3>
+            <ul>
+              <li><span class="req">Methodology Advisor</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Analysis Advisor</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Evidence Synthesis Engine</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Research Gap Engine</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Quantitative Calculation Engine</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Statistical Execution Layer</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Qualitative Analysis Backend</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Mixed Methods Backend</span><span class="prio p2">P2</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INTEGRATION GATEWAY ============ -->
+      <section class="engine" id="integration">
+        <div class="engine-head"><span class="engine-num">03</span><h2 class="engine-title">Integration Gateway</h2></div>
+        <p class="engine-purpose">Satu abstraction layer untuk semua API eksternal. Tidak ada domain lain yang boleh memanggil provider luar langsung — semua lewat sini, supaya kredensial, rate limit, dan kegagalan provider terkontrol di satu tempat.</p>
+
+        <div class="domain-grid">
+          <div class="domain">
+            <h3>Fondasi Gateway</h3>
+            <ul>
+              <li><span class="req">Integration Gateway (core)</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Provider Credentials Vault</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Rate Limit Manager</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Scholarly Metadata Gateway</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Integration Health Monitor</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Webhook System</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Metadata Connector</h3>
+            <ul>
+              <li><span class="req">Crossref Connector</span><span class="prio p0">P0</span></li>
+              <li><span class="req">OpenAlex Connector</span><span class="prio p0">P0</span></li>
+              <li><span class="req">DOAJ Connector</span><span class="prio p1">P1</span></li>
+              <li><span class="req">ORCID Connector</span><span class="prio p1">P1</span></li>
+              <li><span class="req">SINTA Data Layer</span><span class="prio p1">P1</span></li>
+              <li><span class="req">GARUDA Layer</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Workflow Connector</h3>
+            <ul>
+              <li><span class="req">Zotero Integration</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Mendeley Integration</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Software Integration Layer</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Microsoft Word Integration</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Google Docs Integration</span><span class="prio p2">P2</span></li>
+              <li><span class="req">LaTeX Export</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Repository Connector Layer</span><span class="prio p2">P2</span></li>
+              <li><span class="req">OJS Connector Layer</span><span class="prio p2">P2</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PUBLICATION GATEWAY ============ -->
+      <section class="engine" id="publication">
+        <div class="engine-head"><span class="engine-num">04</span><h2 class="engine-title">Publication Gateway</h2></div>
+        <p class="engine-purpose">Dari naskah selesai sampai diterbitkan: cocokkan jurnal tujuan, cek kesiapan, lacak status submission. Domain paling bergantung pada Integration Gateway (Crossref/OpenAlex/SINTA) untuk data registry-nya.</p>
+
+        <div class="domain-grid">
+          <div class="domain">
+            <h3>Registry</h3>
+            <ul>
+              <li><span class="req">Publication Destination Registry</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Journal Registry</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Indexing Registry</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Submission URL Registry</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Conference Registry</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Preprint Registry</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Institutional Repository Registry</span><span class="prio p2">P2</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Matching &amp; Readiness</h3>
+            <ul>
+              <li><span class="req">Journal Matcher</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Publication Goal Engine</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Publication Readiness Engine</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Submission Checklist</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Author Guideline Parser</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Manuscript Formatter</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Cover Letter Generator</span><span class="prio p2">P2</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Tracking &amp; Record</h3>
+            <ul>
+              <li><span class="req">Submission Tracker</span><span class="prio p1">P1</span></li>
+              <li><span class="req">DOI Publication Resolver</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Publication Record</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Reviewer Revision Workspace</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Citation Tracking</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Research Repository (hosting sendiri)</span><span class="prio p3">P3</span></li>
+              <li><span class="req">DOI Registration Infrastructure</span><span class="prio p3">P3</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PLATFORM SERVICES ============ -->
+      <section class="engine" id="platform">
+        <div class="engine-head"><span class="engine-num">05</span><h2 class="engine-title">Platform Services</h2></div>
+        <p class="engine-purpose">Bukan salah satu dari "empat engine" versi diagram awal, tapi sama krusialnya — identitas, uang, admin, dan observability yang menopang keempatnya. Tanpa ini, empat engine di atas tidak punya fondasi untuk berjalan aman.</p>
+
+        <div class="domain-grid">
+          <div class="domain">
+            <h3>Identity &amp; Access</h3>
+            <ul>
+              <li><span class="req">Authentication</span><span class="prio p0">P0</span></li>
+              <li><span class="req">User Profile</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Role &amp; Permission</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Organization / Institution</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Institution Data Isolation</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Infrastructure</h3>
+            <ul>
+              <li><span class="req">Relational Database</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Search Database</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Object Storage</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Cache</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Job Queue</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Scheduler/Cron</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Email Service</span><span class="prio p0">P0</span></li>
+              <li><span class="req">API Gateway</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Vector Database</span><span class="prio p1">P1</span></li>
+              <li><span class="req">API Versioning</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Data Integrity</h3>
+            <ul>
+              <li><span class="req">Audit Log</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Soft Delete / Recovery</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Backup &amp; Restore</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Feature Flags</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Version History</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Security &amp; Privacy</h3>
+            <ul>
+              <li><span class="req">Security (encryption, headers, secrets)</span><span class="prio p0">P0</span></li>
+              <li><span class="req">RBAC/ABAC Enforcement</span><span class="prio p0">P0</span></li>
+              <li><span class="req">File Security</span><span class="prio p0">P0</span></li>
+              <li><span class="req">API Protection</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Data Privacy</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Academic Data Privacy</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Legal/Compliance Backend</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Observability</h3>
+            <ul>
+              <li><span class="req">Logging</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Error Tracking</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Metrics</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Health Checks</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Distributed Tracing</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Analytics Events</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Product Analytics</span><span class="prio p1">P1</span></li>
+            </ul>
+          </div>
+          <div class="domain">
+            <h3>Admin &amp; Commerce</h3>
+            <ul>
+              <li><span class="req">CMS Admin</span><span class="prio p0">P0</span></li>
+              <li><span class="req">User Admin</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Super Admin</span><span class="prio p0">P0</span></li>
+              <li><span class="req">Research Data Admin</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Integration Admin</span><span class="prio p1">P1</span></li>
+              <li><span class="req">AI Admin</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Notification Service</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Billing</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Subscription Entitlements</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Usage Quotas</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Localization Backend</span><span class="prio p1">P1</span></li>
+              <li><span class="req">Institutional Billing</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Academy Backend</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Certification</span><span class="prio p2">P2</span></li>
+              <li><span class="req">Marketplace Backend</span><span class="prio p3">P3</span></li>
+              <li><span class="req">Community Backend</span><span class="prio p3">P3</span></li>
+              <li><span class="req">Developer API</span><span class="prio p3">P3</span></li>
+              <li><span class="req">Webhook API</span><span class="prio p3">P3</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DATABASE DOMAIN MODEL ============ -->
+      <section class="block" id="domain-model">
+        <h2 class="block-title">Database Domain Model</h2>
+        <p class="block-lede">
+          Entitas dan relasi, bukan DDL — ini menjawab keputusan ERD yang sempat ditunda di dokumen
+          Master Product Architecture (bagian Research Knowledge Graph). Skema kolom-per-kolom menyusul
+          setelah batas domain ini disepakati.
+        </p>
+
+        <div class="entity-group">
+          <h3>Identity &amp; Access</h3>
+          <p class="owner">Owner: Platform Services</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">User</p><p class="edesc">nama, institusi, level pendidikan, bidang, bahasa, negara, research_interests</p></div>
+            <div class="entity"><p class="ename">Role</p><p class="edesc">Guest…Super Admin</p><p class="erel">→ <b>User</b> many-to-many lewat UserRole</p></div>
+            <div class="entity"><p class="ename">Organization</p><p class="edesc">institusi/lembaga, domain_verified, seats</p><p class="erel">→ <b>User</b> one-to-many</p></div>
+            <div class="entity"><p class="ename">Session</p><p class="edesc">refresh token, device, expires_at</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Research Project</h3>
+          <p class="owner">Owner: Research Core Engine</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">Project</p><p class="edesc">owner, status, stage, archived_at</p><p class="erel">→ <b>User</b>, root dari hampir semua entitas lain</p></div>
+            <div class="entity"><p class="ename">ProjectContext</p><p class="edesc">topik, masalah, tujuan, research question</p><p class="erel">→ <b>Project</b> one-to-one</p></div>
+            <div class="entity"><p class="ename">LifecycleState</p><p class="edesc">enum Idea→Published + log transisi</p><p class="erel">→ <b>Project</b> one-to-many (histori)</p></div>
+            <div class="entity"><p class="ename">Variable</p><p class="edesc">nama, role (IV/DV/mediator/moderator), indikator, skala</p><p class="erel">→ <b>Project</b>; dipakai <b>Hypothesis</b> dan <b>DatasetVariable</b></p></div>
+            <div class="entity"><p class="ename">Hypothesis</p><p class="edesc">pernyataan, variabel terlibat, arah relasi</p><p class="erel">→ <b>Variable</b> many-to-many</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Knowledge Base</h3>
+          <p class="owner">Owner: Research Intelligence Engine</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">KnowledgeEntry</p><p class="edesc">artikel, panduan metode/statistik/sampling/etika</p></div>
+            <div class="entity"><p class="ename">Method</p><p class="edesc">definisi, kapan dipakai, syarat, sample size</p></div>
+            <div class="entity"><p class="ename">Taxonomy</p><p class="edesc">topic, field, research_type, statistical_test, software</p></div>
+            <div class="entity"><p class="ename">MethodRelationship</p><p class="edesc">edge graph: related/narrower/broader</p><p class="erel">→ <b>Method</b> self-referencing — inti Research Knowledge Graph</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Evidence &amp; Literature</h3>
+          <p class="owner">Owner: Research Core (penyimpanan) + Intelligence (pencarian)</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">Paper</p><p class="edesc">title, abstract, doi, authors, journal, year, keywords</p></div>
+            <div class="entity"><p class="ename">PaperSource</p><p class="edesc">provider (crossref/openalex), external_id, fetched_at</p><p class="erel">→ <b>Paper</b>, jejak Scholarly Metadata Gateway</p></div>
+            <div class="entity"><p class="ename">Collection</p><p class="edesc">koleksi literatur dalam satu proyek</p><p class="erel">→ <b>Project</b>; <b>Paper</b> many-to-many lewat sini</p></div>
+            <div class="entity"><p class="ename">EvidenceNote</p><p class="edesc">catatan relevansi, tag, status screening</p><p class="erel">→ <b>Paper</b> + <b>Project</b></p></div>
+            <div class="entity"><p class="ename">EvidenceSynthesis</p><p class="edesc">ringkasan lintas studi + daftar sumber</p><p class="erel">→ <b>Paper</b> many-to-many (traceability wajib)</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Analysis</h3>
+          <p class="owner">Owner: Research Core (penyimpanan) + Intelligence (eksekusi)</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">Dataset</p><p class="edesc">nama, skema, file_ref</p><p class="erel">→ <b>Project</b></p></div>
+            <div class="entity"><p class="ename">DatasetVariable</p><p class="edesc">nama, tipe, missing_count</p><p class="erel">→ <b>Dataset</b>; boleh tertaut <b>Variable</b></p></div>
+            <div class="entity"><p class="ename">AnalysisRun</p><p class="edesc">metode, parameter, status, executed_at</p><p class="erel">→ <b>Dataset</b></p></div>
+            <div class="entity"><p class="ename">AnalysisResult</p><p class="edesc">tabel output, interpretasi, versi</p><p class="erel">→ <b>AnalysisRun</b> one-to-many (versioning)</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Writing</h3>
+          <p class="owner">Owner: Research Core Engine</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">Document</p><p class="edesc">tipe (proposal/thesis/journal article), status</p><p class="erel">→ <b>Project</b></p></div>
+            <div class="entity"><p class="ename">DocumentSection</p><p class="edesc">tipe bagian, konten, state</p><p class="erel">→ <b>Document</b> one-to-many</p></div>
+            <div class="entity"><p class="ename">Reference</p><p class="edesc">sitasi terpakai di dokumen tertentu</p><p class="erel">→ <b>Document</b> + <b>Paper</b></p></div>
+            <div class="entity"><p class="ename">CitationStyle</p><p class="edesc">APA/Harvard/Vancouver/Chicago/IEEE, definisi CSL</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Publication</h3>
+          <p class="owner">Owner: Publication Gateway</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">Journal</p><p class="edesc">issn, publisher, scope, oa_status, apc</p></div>
+            <div class="entity"><p class="ename">IndexingRecord</p><p class="edesc">source (scopus/sinta/doaj), status, verified_at</p><p class="erel">→ <b>Journal</b> one-to-many</p></div>
+            <div class="entity"><p class="ename">SubmissionDestination</p><p class="edesc">submission_url, platform (OJS/ScholarOne)</p><p class="erel">→ <b>Journal</b></p></div>
+            <div class="entity"><p class="ename">JournalMatch</p><p class="edesc">skor kecocokan + alasan</p><p class="erel">→ <b>Document</b> + <b>Journal</b></p></div>
+            <div class="entity"><p class="ename">SubmissionRecord</p><p class="edesc">status Ready→Published, timeline</p><p class="erel">→ <b>Document</b> + <b>Journal</b></p></div>
+            <div class="entity"><p class="ename">PublicationRecord</p><p class="edesc">doi, volume, issue, pages, published_at</p><p class="erel">→ <b>SubmissionRecord</b> one-to-one</p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Research AI</h3>
+          <p class="owner">Owner: Research Intelligence Engine</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">Conversation</p><p class="edesc">thread per proyek</p><p class="erel">→ <b>Project</b></p></div>
+            <div class="entity"><p class="ename">Message</p><p class="edesc">role, content, tokens_used</p><p class="erel">→ <b>Conversation</b> one-to-many</p></div>
+            <div class="entity"><p class="ename">ToolInvocation</p><p class="edesc">tool_name, input, output, source_attribution</p><p class="erel">→ <b>Message</b>; wajib untuk academic integrity</p></div>
+            <div class="entity"><p class="ename">PromptTemplate</p><p class="edesc">task_type, versi, isi template</p></div>
+            <div class="entity"><p class="ename">AIUsageLog</p><p class="edesc">token, cost, model, timestamp</p><p class="erel">→ <b>User</b> + <b>Project</b></p></div>
+          </div>
+        </div>
+
+        <div class="entity-group">
+          <h3>Integration &amp; Platform</h3>
+          <p class="owner">Owner: Integration Gateway + Platform Services</p>
+          <div class="entity-list">
+            <div class="entity"><p class="ename">ProviderCredential</p><p class="edesc">token terenkripsi, scope, expires_at</p></div>
+            <div class="entity"><p class="ename">IntegrationSyncLog</p><p class="edesc">provider, entity_type, status</p></div>
+            <div class="entity"><p class="ename">Subscription</p><p class="edesc">plan, status, renews_at</p><p class="erel">→ <b>User</b> atau <b>Organization</b></p></div>
+            <div class="entity"><p class="ename">AuditLog</p><p class="edesc">actor, aksi, entity, before/after</p><p class="erel">mencatat perubahan di semua domain di atas</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ URUTAN BUILD ============ -->
+      <section class="block" id="order">
+        <h2 class="block-title">Urutan Build</h2>
+        <p class="block-lede">Persis urutan yang sudah ditetapkan, dipetakan ke engine pemiliknya supaya jelas siapa membangun apa lebih dulu.</p>
+        <div class="table-scroll">
+          <table class="order-table">
+            <thead><tr><th>Fase</th><th>Komponen</th><th>Engine</th></tr></thead>
+            <tbody>
+              <tr><td class="phase">P0</td><td>Auth → User/RBAC</td><td>Platform Services</td></tr>
+              <tr><td class="phase">P0</td><td>Research Project → Project Context</td><td>Research Core</td></tr>
+              <tr><td class="phase">P0</td><td>Research AI Orchestrator</td><td>Intelligence</td></tr>
+              <tr><td class="phase">P0</td><td>Knowledge Base → Search</td><td>Intelligence</td></tr>
+              <tr><td class="phase">P0</td><td>Paper Library → Crossref/OpenAlex Gateway</td><td>Core + Integration</td></tr>
+              <tr><td class="phase">P0</td><td>File Storage → Writing/Citation</td><td>Platform + Core</td></tr>
+              <tr><td class="phase">P0</td><td>Admin → Security → Queue/Cache/Logging</td><td>Platform Services</td></tr>
+              <tr><td class="phase">P1</td><td>Semantic Search → Analysis Advisor</td><td>Intelligence</td></tr>
+              <tr><td class="phase">P1</td><td>Dataset/Analysis</td><td>Core + Intelligence</td></tr>
+              <tr><td class="phase">P1</td><td>Zotero/Mendeley → ORCID → SINTA/DOAJ</td><td>Integration</td></tr>
+              <tr><td class="phase">P1</td><td>Publication Destination Registry → Journal Matcher</td><td>Publication</td></tr>
+              <tr><td class="phase">P1</td><td>Publication Readiness → Submission Tracker</td><td>Publication</td></tr>
+              <tr><td class="phase">P2</td><td>Qualitative/Mixed Analysis</td><td>Intelligence</td></tr>
+              <tr><td class="phase">P2</td><td>OJS/Repository Connectors → Software Integrations</td><td>Integration</td></tr>
+              <tr><td class="phase">P2</td><td>Academy → Institutional Features</td><td>Platform Services</td></tr>
+              <tr><td class="phase">P3</td><td>Marketplace → Community → Developer API</td><td>Platform Services</td></tr>
+              <tr><td class="phase">P3</td><td>Own Repository → DOI Infrastructure</td><td>Publication</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ KEPUTUSAN TERBUKA ============ -->
+      <section class="block" id="decisions">
+        <h2 class="block-title">Keputusan Terbuka</h2>
+        <p class="block-lede">Empat hal yang perlu diputuskan sebelum P0 mulai dikerjakan — bukan detail implementasi, tapi keputusan arsitektur yang mahal diubah kalau salah di awal.</p>
+        <div class="oq-list">
+          <div class="oq-item">
+            <span class="oq-num">01</span>
+            <p><strong>Statistical Execution Layer</strong> (#46) butuh sandboxing eksplisit — menjalankan kode statistik pengguna (R/Python) di proses yang sama dengan API utama adalah risiko keamanan. Perlu diputuskan: worker terisolasi, container per-run, atau layanan pihak ketiga.</p>
+          </div>
+          <div class="oq-item">
+            <span class="oq-num">02</span>
+            <p><strong>SINTA dan GARUDA</strong> (#27, #28) — kamu sendiri menandai "jika akses dan terms memungkinkan". Ini bukan keputusan teknis, ini keputusan legal/lisensi yang harus selesai sebelum Integration Gateway mengalokasikan slot untuk keduanya, supaya tidak membangun connector untuk sumber yang ternyata tidak boleh diakses programatik.</p>
+          </div>
+          <div class="oq-item">
+            <span class="oq-num">03</span>
+            <p><strong>Vector Database</strong> (#106) ditandai P1, tapi Semantic Search (#17) dan Research Gap Engine (#35) yang P1 sama-sama bergantung padanya. Perlu satu keputusan awal: vector DB terpisah (Pinecone/Weaviate/Qdrant) atau ekstensi di database relasional (pgvector) — pilihan ini mempengaruhi biaya infrastruktur P1 secara keseluruhan, bukan cuma satu fitur.</p>
+          </div>
+          <div class="oq-item">
+            <span class="oq-num">04</span>
+            <p><strong>AI Provider Layer</strong> (#9) harus diputuskan strategi fallback-nya sebelum Orchestrator dibangun: kalau provider utama gagal/rate-limited, apakah otomatis pindah provider lain, atau gagal eksplisit ke pengguna? Ini menentukan bentuk interface adapter-nya dari awal, mahal diubah setelah orchestrator jadi.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="doc-foot">
+        <span>Backend System Architecture — MetodePenelitian.com</span>
+        <span>Langkah berikut: skema kolom-per-kolom (DDL) per domain, dimulai dari P0</span>
+      </footer>
+    </main>
+  </div>
+</div>
